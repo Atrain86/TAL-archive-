@@ -79,6 +79,8 @@ ul{list-style:none;margin:0;padding:0}
 .ep.playing .num::after{content:" · now playing";color:var(--accent)}
 .chk{flex:none;align-self:center;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;color:transparent}
 .ep.played .chk{background:var(--done);border-color:var(--done);color:var(--bg)}
+.yearhdr{font:600 22px/1 var(--serif);color:var(--accent);padding:22px 0 6px;border-bottom:1px solid var(--line)}
+.yearhdr:first-child{padding-top:6px}
 .empty{color:var(--muted);text-align:center;padding:48px 12px;line-height:1.6}
 
 .hist{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);width:100%;text-align:left}
@@ -286,7 +288,9 @@ function visible() {
     }
     return true;
   });
-  out.sort((a, b) => (S.prefs.sort === "asc" ? a.n - b.n : b.n - a.n));
+  // Chronological by original air date (episode number breaks ties).
+  const key = (e) => (e.d || "9999") + String(e.n).padStart(5, "0");
+  out.sort((a, b) => (S.prefs.sort === "asc" ? (key(a) < key(b) ? -1 : 1) : (key(a) < key(b) ? 1 : -1)));
   return out;
 }
 
@@ -317,7 +321,16 @@ function renderList(toTop) {
     list.innerHTML = `<div class="empty">The episode list is being built for the first time.<br>It takes about 30 minutes — then reopen the app.</div>`;
   } else if (!items.length) {
     list.innerHTML = `<div class="empty">Nothing here with these filters.</div>`;
-  } else list.innerHTML = items.map(rowHTML).join("");
+  } else {
+    // Year headings when browsing all years.
+    let html = "", lastY = null;
+    for (const e of items) {
+      const y = yearOf(e);
+      if (S.prefs.year === "all" && y !== lastY) { html += `<li class="yearhdr">${y || "Undated"}</li>`; lastY = y; }
+      html += rowHTML(e);
+    }
+    list.innerHTML = html;
+  }
   const scope = S.prefs.year === "all" ? "All years" : S.prefs.year;
   const all = EPS.filter((e) => S.prefs.year === "all" || yearOf(e) === +S.prefs.year);
   const nPlayed = all.filter((e) => S.played[e.n]).length;
