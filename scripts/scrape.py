@@ -35,6 +35,7 @@ SPOTIFY_CACHE = os.path.join(ROOT, "spotify-cache.json")
 UA = "Mozilla/5.0 (compatible; personal-episode-index; +https://github.com/Atrain86/tal-archive)"
 PAUSE = 0.4  # be polite between requests
 DATA_VERSION = 2
+SPOTIFY_OK = False
 
 COLLECTIONS = [
     ("new-to-this-american-life", "New to This American Life"),
@@ -447,13 +448,19 @@ class Spotify:
 
 
 def add_spotify(details):
+    global SPOTIFY_OK
     cid, secret = os.environ.get("SPOTIFY_CLIENT_ID"), os.environ.get("SPOTIFY_CLIENT_SECRET")
-    if not cid or not secret:
+    if not cid and not secret:
         log("No Spotify keys set: songs keep Spotify search links.")
         return None
+    if not cid or not secret:
+        missing = "SPOTIFY_CLIENT_SECRET" if cid else "SPOTIFY_CLIENT_ID"
+        log(f"Only one Spotify key is set; {missing} is missing.")
+        return f"Spotify setup needs one more step: the GitHub secret {missing} wasn't found — check its name."
     sp = Spotify(cid, secret)
     if not sp.auth():
-        return "Spotify keys didn't work — songs use Spotify search links until they're fixed."
+        return "Spotify keys didn't work — songs use Spotify search links until they're re-checked."
+    SPOTIFY_OK = True
     cache = read_json(SPOTIFY_CACHE, {})
     today = datetime.now(timezone.utc).date()
     retry_before = (today - timedelta(days=90)).isoformat()
@@ -580,7 +587,7 @@ def main():
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "count": len(episodes),
         "withAudio": with_audio,
-        "spotify": bool(os.environ.get("SPOTIFY_CLIENT_ID")),
+        "spotify": SPOTIFY_OK,
         "warnings": warnings,
         "gone": sorted(gone),
         "episodes": episodes,
