@@ -191,14 +191,31 @@ def load_existing():
     try:
         with open(OUT, encoding="utf-8") as f:
             data = json.load(f)
-        return {e["n"]: e for e in data.get("episodes", [])}
+        return {e["n"]: e for e in data.get("episodes", [])}, set(data.get("gone", []))
     except Exception:
-        return {}
+        return {}, set()
+
+
+def fetch_episode(n, url):
+    """Try the known URL, then the old-style /radio-archives/episode/<n>
+    link (redirects to the real page for every era), then /<n>."""
+    tried = []
+    for u in (url, f"{BASE}/radio-archives/episode/{n}", f"{BASE}/{n}"):
+        if not u or u in tried:
+            continue
+        tried.append(u)
+        final, page = fetch(u)
+        time.sleep(PAUSE)
+        if page and "<h1" in page:
+            return final, page
+    return None, None
 
 
 def main():
-    existing = load_existing()
+    existing, gone = load_existing()
     full = len(existing) < 100 or "--full" in sys.argv
+    if full:
+        gone = set()
     log(f"{len(existing)} episodes on file; {'full' if full else 'incremental'} scan")
 
     found = discover(full)
@@ -206,28 +223,29 @@ def main():
         log("Could not read the archive listing at all.")
         sys.exit(1)
 
-    # Fill numbering gaps by trying /<n> directly (oldest episodes, odd slugs).
+    # The archive's "Load More" pages only reach back so far, so every
+    # missing number from #1 up is looked up by its episode number.
     known = set(existing) | set(found)
     top = max(known) if known else 0
-    gaps = [n for n in range(1, top + 1) if n not in known]
-    if gaps and not full:
-        gaps = gaps[-15:]  # incremental runs: only recent gaps
+    gaps = [n for n in range(1, top + 1) if n not in known and n not in gone]
     todo = {n: u for n, u in found.items() if n not in existing}
     for n in gaps:
-        todo.setdefault(n, f"{BASE}/{n}")
+        todo.setdefault(n, None)
     # Retry a few entries that were saved without audio.
     retries = [n for n, e in existing.items() if not e.get("mp3")][:20]
     for n in retries:
-        todo.setdefault(n, existing[n].get("url") or f"{BASE}/{n}")
+        todo.setdefault(n, existing[n].get("url"))
 
-    log(f"{len(todo)} episode pages to read")
+    log(f"{len(todo)} episode pages to read ({len(gaps)} looked up by number)")
     eps = dict(existing)
     misses = 0
     for i, (n, url) in enumerate(sorted(todo.items())):
-        final, page = fetch(url)
-        time.sleep(PAUSE)
+        final, page = fetch_episode(n, url)
         if not page:
             misses += 1
+            if n not in eps:
+                gone.add(n)
+                log(f"#{n}: no page found")
             continue
         ep = parse_episode(n, final, page)
         eps[n] = ep
@@ -242,12 +260,16 @@ def main():
         warnings.append(f"Only {with_audio} of {len(episodes)} episodes have playable audio here.")
     if no_date:
         warnings.append(f"{no_date} episodes are missing an air date.")
+    top = max((e["n"] for e in episodes), default=0)
+    if len(gone) > 25:
+        warnings.append(f"{len(gone)} of episodes #1–{top} couldn't be found on the site.")
 
     data = {
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "count": len(episodes),
         "withAudio": with_audio,
         "warnings": warnings,
+        "gone": sorted(gone),
         "episodes": episodes,
     }
     with open(OUT, "w", encoding="utf-8") as f:
