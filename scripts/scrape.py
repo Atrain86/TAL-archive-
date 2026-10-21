@@ -134,6 +134,11 @@ def discover(full):
 
 # ---------- episode page ----------
 
+def is_promo_or_clean(u):
+    """Skip the beeped version and short promo clips; only full episodes."""
+    u = u.lower()
+    return "/clean/" in u or "/promos/" in u or "\\" in u
+
 def parse_episode(n, final_url, page):
     title = meta(page, "og:title")
     title = re.sub(r"\s*[-|–]\s*This American Life\s*$", "", title).strip()
@@ -164,7 +169,7 @@ def parse_episode(n, final_url, page):
         if not h or ".mp3" not in h.group(1).lower():
             continue
         url = absolute(h.group(1))
-        if "/clean/" in url:
+        if is_promo_or_clean(url):
             continue
         score = 2 if "download" in text(inner).lower() or "download" in attrs.lower() else 1
         candidates.append((score, url))
@@ -173,8 +178,8 @@ def parse_episode(n, final_url, page):
         mp3 = candidates[0][1]
     else:
         for m in re.finditer(r"""https?:[^"'\s<>]+?\.mp3[^"'\s<>]*""", page):
-            u = html.unescape(m.group(0))
-            if "/clean/" not in u:
+            u = html.unescape(m.group(0)).replace("\\/", "/")
+            if not is_promo_or_clean(u):
                 mp3 = u
                 break
 
@@ -213,6 +218,9 @@ def fetch_episode(n, url):
 
 def main():
     existing, gone = load_existing()
+    for e in existing.values():  # drop audio links saved before promo clips were filtered out
+        if e.get("mp3") and is_promo_or_clean(e["mp3"]):
+            e["mp3"] = None
     full = len(existing) < 100 or "--full" in sys.argv
     if full:
         gone = set()
