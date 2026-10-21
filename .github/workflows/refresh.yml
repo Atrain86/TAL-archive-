@@ -1,0 +1,65 @@
+name: Refresh episodes and publish
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Saturdays and Tuesdays, ~6:23am Pacific (new episodes come out Fridays)
+    - cron: "23 13 * * 2,6"
+  workflow_dispatch:
+    inputs:
+      full:
+        description: "Re-read every episode page"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: refresh-and-publish
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Update episode list
+        run: python scripts/scrape.py ${{ inputs.full && '--full' || '' }}
+
+      - name: Save episode list to the repo
+        run: |
+          git config user.name "tal-archive-bot"
+          git config user.email "tal-archive-bot@users.noreply.github.com"
+          git add episodes.json
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Update episode list"
+            git push
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  publish:
+    needs: refresh
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

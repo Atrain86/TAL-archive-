@@ -1,0 +1,15 @@
+{
+  "name": "TAL Archive",
+  "short_name": "TAL Archive",
+  "description": "Browse and play the This American Life archive by year, with play history.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#141311",
+  "theme_color": "#141311",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
