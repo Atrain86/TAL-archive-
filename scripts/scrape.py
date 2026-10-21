@@ -356,8 +356,138 @@ def scrape_collections():
                     item["act"] = path_of(h.group(1))
             items.append(item)
         log(f"collection {slug}: {len(items)} items")
-        out.append({"id": slug, "name": name or fallback, "items": items})
+        out.append({"id": slug, "name": name or fallback, "group": "tal", "source": "This American Life",
+                    "url": f"{BASE}/recommended/{slug}", "items": items})
     return out
+
+
+def scrape_staff_picks(path_to_n):
+    """The monthly 'Staff Picks' pages: one page per staff member, with
+    episode and act links inside the write-up."""
+    _, idx = fetch(f"{BASE}/recommended/staff-picks")
+    time.sleep(PAUSE)
+    slugs = sorted(set(re.findall(r'href="(?:https://www\.thisamericanlife\.org)?/recommended/(staff-picks-[a-z0-9-]+)"', idx or "")))
+    out = []
+    for slug in slugs:
+        _, page = fetch(f"{BASE}/recommended/{slug}")
+        time.sleep(PAUSE)
+        if not page:
+            continue
+        h1 = re.search(r"<h1\b[^>]*>(.*?)</h1>", page, re.S)
+        name = text(h1.group(1)) if h1 else slug.replace("-", " ").title()
+        name = re.sub(r"^Staff Picks:\s*", "Staff picks: ", name)
+        body = re.search(r'field-name-body.*?</div></div></div>', page, re.S)
+        order, acts = [], {}
+        for href in re.findall(r'href="([^"]+)"', body.group(0) if body else ""):
+            u = absolute(href)
+            if not u.startswith(BASE):
+                continue
+            p = path_of(u)
+            n = episode_of_path(p, path_to_n)
+            if not n:
+                continue
+            if n not in acts:
+                order.append(n)
+                acts[n] = []
+            segs = p.strip("/").split("/")
+            if len(segs) >= 3 or (len(segs) == 2 and not segs[0].isdigit()):
+                if p not in acts[n]:
+                    acts[n].append(p)
+        items = []
+        for n in order:
+            items += [{"n": n, "act": a} for a in acts[n]] or [{"n": n}]
+        log(f"staff picks {slug}: {len(items)} items")
+        out.append({"id": slug, "name": name, "group": "staff", "source": "This American Life",
+                    "url": f"{BASE}/recommended/{slug}", "items": items})
+    return out
+
+
+def episode_of_path(p, path_to_n):
+    m = re.match(r"^/(?:radio-archives/episode/)?(\d+)(?:/|$)", p)
+    if m:
+        return int(m.group(1))
+    first = "/" + p.strip("/").split("/")[0]
+    return path_to_n.get(first)
+
+
+# ---------- lists for the app ----------
+
+def act_label_key(s):
+    return re.sub(r"[^a-z0-9 ]", "", re.sub(r"-\d+$", "", (s or "").lower()).replace("-", " ")).strip()
+
+
+def enrich(item, details):
+    """Attach act start/end so the app can play a picked act and know when
+    it has been heard. Accepts an act path, label ('Act Three') or title."""
+    want = item.get("act")
+    if not want:
+        return item
+    acts = (details.get(item["n"]) or {}).get("acts") or []
+    hit = None
+    for a in acts:  # exact path
+        if a.get("u") == want:
+            hit = a
+    if not hit:  # path whose last part is a label: /x/act-four-0 -> "act four"
+        key = act_label_key(want.rsplit("/", 1)[-1])
+        for a in acts:
+            if act_label_key(a.get("label")) == key or (a.get("title") and act_label_key(a["title"]) == key):
+                hit = a
+                break
+    if not hit:  # free text: "Act One: Dr. Phil", "Opening Night"
+        key = act_label_key(want.split(":")[0])
+        for a in acts:
+            if key and (act_label_key(a.get("label")) == key or act_label_key(a.get("title")).startswith(key)):
+                hit = a
+                break
+    out = {k: v for k, v in item.items() if k != "act"}
+    if hit:
+        i = acts.index(hit)
+        out["act"] = hit.get("u")
+        out["alabel"] = hit.get("label") + (f": {hit['title']}" if hit.get("title") else "")
+        if isinstance(hit.get("at"), int):
+            out["at"] = hit["at"]
+            nxt = acts[i + 1].get("at") if i + 1 < len(acts) else None
+            if isinstance(nxt, int):
+                out["end"] = nxt
+    return out
+
+
+def build_lists(site_cols, staff, details, eps):
+    web = read_json(os.path.join(ROOT, "data", "web-lists.json"), {}).get("lists", [])
+    lists = site_cols + staff + web
+    for L in lists:
+        L["items"] = [enrich(it, details) for it in L["items"] if it["n"] in eps]
+
+    # Everything recommended on TAL's own site, one entry per episode.
+    combined, names = {}, {}
+    for L in lists:
+        if L["group"] not in ("tal", "staff"):
+            continue
+        for it in L["items"]:
+            c = combined.setdefault(it["n"], {"n": it["n"], "from": []})
+            if L["name"] not in c["from"]:
+                c["from"].append(L["name"])
+    allpicks = {"id": "all-picks", "name": "All picks and recommendations", "group": "combined",
+                "source": "This American Life", "items": list(combined.values()),
+                "note": "Every episode recommended anywhere on thisamericanlife.org."}
+
+    # Most loved across the web: how many separate sources include each episode.
+    srcs = {}
+    for L in lists:
+        if L["group"] == "web" or L["id"].startswith("tal-"):
+            key = L.get("countAs") or L.get("source")
+            for it in L["items"]:
+                srcs.setdefault(it["n"], set()).add(key)
+    fans = {it["n"]: it.get("count", 0) for L in lists if L["id"] == "web-fan-favourites" for it in L["items"]}
+    ranked = sorted((n for n, s in srcs.items() if len(s) >= 2), key=lambda n: (-len(srcs[n]), -fans.get(n, 0), n))
+    nsrc = len({L.get("countAs") or L.get("source") for L in lists if L["group"] == "web" or L["id"].startswith("tal-")})
+    loved = {"id": "most-loved", "name": "Most loved across the web", "group": "web", "ranked": True,
+             "source": f"{nsrc} published lists and fan threads",
+             "note": "Episodes that appear on two or more lists, ranked by how many include them.",
+             "items": [{"n": n, "count": len(srcs[n]), "from": sorted(srcs[n])} for n in ranked]}
+    log(f"lists: {len(lists)} + combined ({len(allpicks['items'])}) + most loved ({len(loved['items'])})")
+    return [allpicks] + [L for L in lists if L["group"] == "tal"] + [L for L in lists if L["group"] == "staff"] + \
+        [loved] + [L for L in lists if L["group"] == "web"]
 
 
 # ---------- Spotify (exact track links) ----------
@@ -589,14 +719,26 @@ def main():
         if d.pop("_dirty", False):
             write_json(os.path.join(DETAILS, f"{n}.json"), d)
 
+    old_cols = {c["id"]: c for c in read_json(COLLECTIONS_OUT, [])}
     cols = scrape_collections()
     if len(cols) < len(COLLECTIONS):
-        old_cols = {c["id"]: c for c in read_json(COLLECTIONS_OUT, [])}
         have = {c["id"] for c in cols}
-        cols += [c for k, c in old_cols.items() if k not in have]
+        for slug, name in COLLECTIONS:
+            if slug not in have and slug in old_cols:
+                c = old_cols[slug]
+                cols.append({"id": slug, "name": c.get("name", name), "group": "tal", "source": "This American Life",
+                             "url": f"{BASE}/recommended/{slug}",
+                             "items": [{"n": it["n"], **({"act": it["act"]} if it.get("act") else {})} for it in c["items"]]})
         if len(cols) < len(COLLECTIONS):
             warnings.append("Some curated lists couldn't be read this time.")
-    write_json(COLLECTIONS_OUT, cols)
+    path_to_n = {path_of(e["url"]): n for n, e in eps.items() if e.get("url")}
+    staff = scrape_staff_picks(path_to_n)
+    if not staff:
+        staff = [{**c, "items": [{"n": it["n"], **({"act": it["act"]} if it.get("act") else {})} for it in c["items"]]}
+                 for c in old_cols.values() if c.get("group") == "staff"]
+        if staff:
+            warnings.append("The staff picks pages couldn't be read this time; showing the last saved copy.")
+    write_json(COLLECTIONS_OUT, build_lists(cols, staff, details, eps))
 
     episodes = sorted(eps.values(), key=lambda e: e["n"])
     with_audio = sum(1 for e in episodes if e.get("mp3"))

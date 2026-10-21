@@ -16,7 +16,7 @@
 :root{
   --bg:#141311; --surface:#1d1c19; --surface2:#26241f; --line:#33302a;
   --text:#ede8df; --muted:#9a948a; --faint:#6c675f;
-  --accent:#e8b04b; --accent-ink:#141311; --done:#8fbf8f; --warn:#e6a35a; --sp:#7fcf95;
+  --accent:#e8b04b; --accent-ink:#141311; --done:#8fbf8f; --warn:#e6a35a; --sp:#7fcf95; --heart:#e8735f;
   --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
   --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
   --top: env(safe-area-inset-top,0px); --bot: env(safe-area-inset-bottom,0px);
@@ -40,17 +40,19 @@ header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(var(--t
 .iconbtn.on{color:var(--accent)}
 .iconbtn .dot{position:absolute;top:7px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
 
-.search{margin-top:10px;position:relative}
+.tabs{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:2px;margin-top:10px}
+.tabs button{flex:1;padding:7px 0;border-radius:8px;font-size:14px;color:var(--muted)}
+.tabs button.on{background:var(--surface2);color:var(--text);font-weight:600}
+
+.search{margin-top:8px;position:relative}
 .search input{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px 9px 34px;outline:none}
 .search input:focus{border-color:var(--faint)}
 .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--faint)}
-
 .ctl{display:flex;gap:8px;margin-top:8px;align-items:center}
 .pick{position:relative;flex:1;min-width:0}
-.pick select{appearance:none;-webkit-appearance:none;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 28px 8px 12px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick select{appearance:none;-webkit-appearance:none;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 28px 8px 12px;font-size:14px}
 .pick.on select{border-color:var(--accent);color:var(--accent)}
 .pick::after{content:"";position:absolute;right:12px;top:50%;width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}
-.pick.year{flex:0 0 38%}
 .ctl .iconbtn{background:var(--surface);border:1px solid var(--line)}
 .ctl .iconbtn.on{border-color:var(--accent)}
 
@@ -68,10 +70,11 @@ ul{list-style:none;margin:0;padding:0}
 .yearhdr:first-child{padding-top:6px}
 .ep{border-bottom:1px solid var(--line);content-visibility:auto;contain-intrinsic-size:auto 96px}
 .ep.open{content-visibility:visible}
-.ep .head{display:flex;gap:10px;padding:12px 0;cursor:pointer}
+.ep .head{display:flex;gap:6px;padding:12px 0;cursor:pointer}
 .ep .body{flex:1;min-width:0}
 .ep .meta{font-size:12px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .ep .num{color:var(--muted);font-variant-numeric:tabular-nums}
+.ep .rank{font:600 13px/1 var(--sans);color:var(--accent-ink);background:var(--accent);border-radius:6px;padding:3px 6px}
 .ep .badge{color:var(--done);font-weight:600}
 .ep .now{color:var(--accent);font-weight:600}
 .ep .title{font:600 17px/1.25 var(--serif);margin:2px 0 3px}
@@ -81,25 +84,32 @@ ul{list-style:none;margin:0;padding:0}
 .ep .bar i{display:block;height:100%;background:var(--accent)}
 .ep .left{font-size:12px;color:var(--accent);margin-top:4px}
 .ep .pickline{font-size:12px;color:var(--accent);margin-top:5px}
+.ep .pickline.heard{color:var(--done)}
+.ep .fromline{font-size:12px;color:var(--faint);margin-top:4px}
 .ep .chev{display:inline-block;width:7px;height:7px;border-right:1.6px solid var(--faint);border-bottom:1.6px solid var(--faint);transform:rotate(45deg);margin-left:2px;transition:transform .15s}
 .ep.open .chev{transform:rotate(-135deg) translate(-2px,-2px)}
 .ep.played .title{color:var(--muted)}
 .ep.playing .title{color:var(--accent)}
-.play{flex:none;align-self:center;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;color:var(--text)}
+.btncol{display:flex;align-items:center;gap:2px;align-self:center}
+.play{flex:none;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;color:var(--text)}
 .play:active{background:var(--surface2)}
 .ep.playing .play{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .play.ext{color:var(--faint)}
+.heart{width:36px;height:42px;display:grid;place-items:center;color:var(--faint)}
+.heart.on{color:var(--heart)}
 
 .det{padding:0 0 16px}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
 .abtn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;text-decoration:none;white-space:nowrap}
 .abtn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
 .abtn.done{color:var(--done);border-color:var(--done)}
+.abtn.fav{color:var(--heart);border-color:#5a3a33}
 .act{padding:12px 0 2px;border-top:1px solid var(--line);margin-top:10px}
 .act.picked{border-left:3px solid var(--accent);padding-left:10px;margin-left:-13px}
 .acthead{display:flex;gap:10px;align-items:flex-start}
 .acthead .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 .acthead .lbl .pk{color:var(--accent)}
+.acthead .lbl .hd{color:var(--done)}
 .acthead .at{font:600 16px/1.25 var(--serif);margin-top:1px}
 .acthead .grow{flex:1;min-width:0}
 .from{flex:none;font-size:12px;color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:5px 10px;white-space:nowrap}
@@ -116,6 +126,29 @@ ul{list-style:none;margin:0;padding:0}
 .detnote{font-size:13px;color:var(--muted);padding:6px 0}
 .copysp{margin-top:12px}
 .empty{color:var(--muted);text-align:center;padding:48px 12px;line-height:1.6}
+
+.lsec{font-size:12px;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;margin:18px 0 4px}
+.lsec:first-child{margin-top:4px}
+.lrow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);width:100%;text-align:left}
+.lic{flex:none;width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:17px;background:var(--surface2);color:var(--muted)}
+.lic.fav{color:var(--heart)} .lic.star{color:var(--accent)} .lic.web{color:#8fb8d8}
+.lrow .grow{flex:1;min-width:0}
+.lrow .nm{font:600 15.5px/1.25 var(--serif)}
+.lrow .mt{font-size:12px;color:var(--faint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .bar{height:3px;background:var(--surface2);border-radius:2px;margin-top:6px;overflow:hidden}
+.lrow .bar i{display:block;height:100%;background:var(--done)}
+.lrow .chev2{flex:none;width:8px;height:8px;border-right:1.6px solid var(--faint);border-bottom:1.6px solid var(--faint);transform:rotate(-45deg)}
+.more{font-size:13px;color:var(--accent);padding:10px 0 4px 48px}
+.lhead{padding:2px 0 10px;border-bottom:1px solid var(--line);margin-bottom:2px}
+.back{font-size:14px;color:var(--accent);padding:4px 0 8px}
+.lhead h2{margin:0;font:600 22px/1.2 var(--serif)}
+.lhead .mt{font-size:12.5px;color:var(--faint);margin-top:4px}
+.lhead .nt{font-size:13px;color:var(--muted);margin-top:6px}
+.lhead .prog{font-size:13px;color:var(--done);margin-top:8px}
+.lhead .row2{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.minseg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px}
+.minseg button{padding:6px 12px;border-radius:999px;font-size:13px;color:var(--muted)}
+.minseg button.on{background:var(--surface2);color:var(--text);font-weight:600}
 
 .hist{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);width:100%;text-align:left}
 .hist .ic{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;background:var(--surface2);color:var(--muted)}
@@ -164,12 +197,14 @@ ul{list-style:none;margin:0;padding:0}
       <h1>TAL Archive</h1>
       <div id="status" class="status">Loading episodes…</div>
     </div>
-    <button id="histBtn" class="iconbtn" aria-label="History">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>
-    </button>
     <button id="setBtn" class="iconbtn" aria-label="Settings">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     </button>
+  </div>
+  <div class="tabs" id="tabs">
+    <button data-view="episodes">Episodes</button>
+    <button data-view="lists">Lists</button>
+    <button data-view="history">History</button>
   </div>
   <div id="browseCtl">
     <div class="search">
@@ -177,8 +212,7 @@ ul{list-style:none;margin:0;padding:0}
       <input id="q" type="search" placeholder="Search titles, songs, artists, #number" autocomplete="off">
     </div>
     <div class="ctl">
-      <label class="pick year" id="yearWrap"><select id="year" aria-label="Year"></select></label>
-      <label class="pick" id="collWrap"><select id="coll" aria-label="Collection"></select></label>
+      <label class="pick" id="yearWrap"><select id="year" aria-label="Year"></select></label>
       <button id="filterBtn" class="iconbtn" aria-label="Filter and order">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
         <span class="dot hide" id="filterDot"></span>
@@ -188,12 +222,14 @@ ul{list-style:none;margin:0;padding:0}
 </header>
 
 <main>
-  <div id="browse">
+  <div id="vEpisodes">
     <div id="cont"></div>
     <div id="summary" class="summary"></div>
     <ul id="list"></ul>
   </div>
-  <div id="history" class="hide"></div>
+  <div id="vLists" class="hide"></div>
+  <div id="vList" class="hide"><div id="lhead"></div><ul id="llist"></ul></div>
+  <div id="vHistory" class="hide"></div>
 </main>
 
 <div id="player" class="hide">
@@ -222,14 +258,22 @@ const ICON_PLAY = '<svg width="20" height="20" viewBox="0 0 24 24" fill="current
 const ICON_PAUSE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4.5" height="16" rx="1"/><rect x="13.5" y="4" width="4.5" height="16" rx="1"/></svg>';
 const ICON_EXT = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
 const ICON_NOTE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 17.5V5.8l11-2.3v11.7a3 3 0 1 1-2-2.8V7.6l-7 1.5v8.4a3 3 0 1 1-2-2.8z"/></svg>';
+const HEART_OFF = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-9.3-9.2C1.4 7.4 3.6 4 7 4c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8C19.5 15.4 12 20 12 20z"/></svg>';
+const HEART_ON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-9.3-9.2C1.4 7.4 3.6 4 7 4c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8C19.5 15.4 12 20 12 20z"/></svg>';
 const SPEEDS = [1, 1.25, 1.5, 1.75, 2];
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 // ---------- state (all on this phone) ----------
-const blank = () => ({ v: 1, prog: {}, played: {}, log: [], last: null, prefs: { year: "all", coll: "all", filter: "all", sort: "asc", speed: 1 } });
+const blankPrefs = () => ({ year: "all", filter: "all", sort: "asc", speed: 1, view: "episodes", list: null, listFilter: "all" });
+const blank = () => ({ v: 1, prog: {}, played: {}, far: {}, fav: {}, log: [], last: null, prefs: blankPrefs() });
+function normalize(s) {
+  s = Object.assign(blank(), s || {});
+  s.prefs = Object.assign(blankPrefs(), s.prefs || {});
+  for (const k of ["prog", "played", "far", "fav"]) if (!s[k] || typeof s[k] !== "object") s[k] = {};
+  return s;
+}
 let S;
-try { S = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY) || "{}")); } catch { S = blank(); }
-S.prefs = Object.assign(blank().prefs, S.prefs || {});
+try { S = normalize(JSON.parse(localStorage.getItem(KEY) || "{}")); } catch { S = blank(); }
 let storageOk = true;
 function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(S)); storageOk = true; }
@@ -238,9 +282,11 @@ function persist() {
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 
 // ---------- data ----------
-let DATA = null, EPS = [], BY = {}, COLLS = [], offline = false;
-const DET = {};            // n -> details (acts) once loaded
-let openN = null;          // episode whose details are open
+let DATA = null, EPS = [], BY = {}, LISTS = [], LBY = {}, offline = false;
+const DET = {};
+let openK = null;
+const ROWCTX = {};
+const expanded = {};
 const yearOf = (e) => (e.d ? +e.d.slice(0, 4) : null);
 function fmtDate(d) { if (!d) return ""; const [y, m, day] = d.split("-").map(Number); return `${MONTHS[m - 1]} ${day}, ${y}`; }
 function fmtTime(s) {
@@ -249,14 +295,21 @@ function fmtTime(s) {
   return h ? `${h}:${String(m).padStart(2, "0")}:${String(x).padStart(2, "0")}` : `${m}:${String(x).padStart(2, "0")}`;
 }
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const plural = (n, w) => `${n.toLocaleString()} ${w}${n === 1 ? "" : "s"}`;
 function ago(iso) {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 864e5);
   if (d <= 0) return "today"; if (d === 1) return "yesterday"; return `${d} days ago`;
 }
+// One source of truth for "played", used by every list and view.
 function status(n) {
   if (S.played[n]) return "played";
   const p = S.prog[n];
   return p && p.p > 20 ? "progress" : "unplayed";
+}
+function itemDone(it) {
+  if (S.played[it.n]) return true;
+  if (it.act && typeof it.end === "number") return (S.far[it.n] || 0) >= it.end - 20;
+  return false;
 }
 async function getJSON(path) {
   try {
@@ -275,47 +328,64 @@ async function load() {
   if (!DATA) DATA = { episodes: [], updated: null, warnings: [] };
   EPS = DATA.episodes || [];
   BY = {}; EPS.forEach((e) => (BY[e.n] = e));
-  COLLS = Array.isArray(c) ? c : [];
-  COLLS.forEach((col) => { col.byN = {}; col.items.forEach((it) => { (col.byN[it.n] = col.byN[it.n] || []).push(it.act || null); }); });
-  renderStatus(); renderPickers(); renderList(); restorePlayer();
+  LISTS = (Array.isArray(c) ? c : []).filter((L) => L && L.items);
+  LISTS.forEach((L) => { L.group = L.group || "tal"; L.items = L.items.filter((it) => BY[it.n]); LBY[L.id] = L; });
+  renderStatus(); renderYears(); markControls(); restorePlayer();
+  showView(S.prefs.view === "list" && !LBY[S.prefs.list] && S.prefs.list !== "favourites" ? "lists" : S.prefs.view, true);
 }
 
-// ---------- status line (healthy state shown, problems announce themselves) ----------
+// ---------- status line ----------
 function freshness() {
   if (!DATA.updated) return { warn: true, text: "Episode list is being built — first scan takes ~30 min" };
   const days = (Date.now() - new Date(DATA.updated).getTime()) / 864e5;
   if (offline) return { warn: true, text: `Offline · showing list saved ${ago(DATA.updated)}` };
-  if (days > 9) return { warn: true, text: `List last updated ${ago(DATA.updated)} — auto-update needs attention` };
+  if (days > 3) return { warn: true, text: `List last updated ${ago(DATA.updated)} — auto-update needs attention` };
   if (DATA.warnings && DATA.warnings.length) return { warn: true, text: DATA.warnings[0] };
   return { warn: false, text: `${EPS.length} episodes · updated ${ago(DATA.updated)}` };
 }
-function renderStatus() {
-  const f = freshness(), el = $("#status");
-  el.textContent = f.text; el.className = "status " + (f.warn ? "warn" : "ok");
+function renderStatus() { const f = freshness(), el = $("#status"); el.textContent = f.text; el.className = "status " + (f.warn ? "warn" : "ok"); }
+
+// ---------- views ----------
+function showView(v, initial) {
+  S.prefs.view = v; persist();
+  const tabV = v === "list" ? "lists" : v;
+  document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("on", b.dataset.view === tabV));
+  $("#browseCtl").classList.toggle("hide", v !== "episodes");
+  for (const [id, on] of [["#vEpisodes", v === "episodes"], ["#vLists", v === "lists"], ["#vList", v === "list"], ["#vHistory", v === "history"]]) {
+    $(id).classList.toggle("hide", !on);
+  }
+  // Only the visible view keeps rows in the page, so row updates never hit stale copies.
+  if (v !== "episodes") $("#list").innerHTML = "";
+  if (v !== "list") $("#llist").innerHTML = "";
+  openK = null;
+  if (v === "episodes") renderList();
+  else if (v === "lists") renderListsIndex();
+  else if (v === "list") renderListView();
+  else renderHistory();
+  if (!initial) window.scrollTo({ top: 0 });
+}
+$("#tabs").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showView(b.dataset.view); });
+const curView = () => S.prefs.view;
+function rerender() {
+  const v = curView();
+  if (v === "episodes") renderList(); else if (v === "lists") renderListsIndex(); else if (v === "list") renderListView(); else renderHistory();
 }
 
-// ---------- year / collection / filter ----------
-function currentColl() { return S.prefs.coll === "all" ? null : COLLS.find((c) => c.id === S.prefs.coll) || null; }
-function renderPickers() {
+// ---------- episodes view ----------
+function renderYears() {
   const ys = [...new Set(EPS.map(yearOf).filter(Boolean))].sort((a, b) => a - b);
   if (S.prefs.year !== "all" && !ys.includes(+S.prefs.year)) S.prefs.year = "all";
-  if (S.prefs.coll !== "all" && !COLLS.some((c) => c.id === S.prefs.coll)) S.prefs.coll = "all";
   const cnt = (y) => EPS.filter((e) => yearOf(e) === y).length;
   $("#year").innerHTML = `<option value="all">All years</option>` + ys.map((y) => `<option value="${y}">${y} (${cnt(y)})</option>`).join("");
-  $("#coll").innerHTML = `<option value="all">All episodes</option>` +
-    COLLS.map((c) => `<option value="${esc(c.id)}">${esc(c.name)} (${Object.keys(c.byN).length})</option>`).join("");
-  markPickers();
 }
-function markPickers() {
-  $("#year").value = String(S.prefs.year); $("#coll").value = S.prefs.coll;
+function markControls() {
+  $("#year").value = String(S.prefs.year);
   $("#yearWrap").classList.toggle("on", S.prefs.year !== "all");
-  $("#collWrap").classList.toggle("on", S.prefs.coll !== "all");
   const nonDefault = S.prefs.filter !== "all" || S.prefs.sort !== "asc";
   $("#filterDot").classList.toggle("hide", !nonDefault);
   $("#filterBtn").classList.toggle("on", nonDefault);
 }
-$("#year").addEventListener("change", (e) => { S.prefs.year = e.target.value === "all" ? "all" : +e.target.value; persist(); markPickers(); renderList(true); });
-$("#coll").addEventListener("change", (e) => { S.prefs.coll = e.target.value; persist(); markPickers(); renderList(true); });
+$("#year").addEventListener("change", (e) => { S.prefs.year = e.target.value === "all" ? "all" : +e.target.value; persist(); markControls(); renderList(true); });
 let qt; $("#q").addEventListener("input", () => { clearTimeout(qt); qt = setTimeout(() => renderList(true), 150); });
 
 const FILTERS = [["all", "All"], ["unplayed", "Unplayed"], ["progress", "Started"], ["played", "Played"]];
@@ -328,21 +398,21 @@ function openFilter() {
   $("#sheet").onclick = (ev) => {
     const b = ev.target.closest(".seg button");
     if (b) {
-      const name = b.parentElement.dataset.seg; S.prefs[name] = b.dataset.v; persist();
+      S.prefs[b.parentElement.dataset.seg] = b.dataset.v; persist();
       b.parentElement.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
-      markPickers(); renderList(true); return;
+      markControls(); renderList(true); return;
     }
-    if (ev.target.id === "resetF") { S.prefs.filter = "all"; S.prefs.sort = "asc"; persist(); markPickers(); renderList(true); closeSheet(); }
+    if (ev.target.id === "resetF") { S.prefs.filter = "all"; S.prefs.sort = "asc"; persist(); markControls(); renderList(true); closeSheet(); }
     if (ev.target.id === "doneF") closeSheet();
   };
 }
 $("#filterBtn").addEventListener("click", openFilter);
 
+const dateKey = (e) => (e.d || "9999") + String(e.n).padStart(5, "0");
 function visible() {
   const q = $("#q").value.trim().toLowerCase().replace(/^#/, "");
-  const y = S.prefs.year, f = S.prefs.filter, col = currentColl();
+  const y = S.prefs.year, f = S.prefs.filter;
   const out = EPS.filter((e) => {
-    if (col && !col.byN[e.n]) return false;
     if (y !== "all" && yearOf(e) !== +y) return false;
     if (f !== "all" && status(e.n) !== f) return false;
     if (q) {
@@ -351,51 +421,145 @@ function visible() {
     }
     return true;
   });
-  // Chronological by original air date (episode number breaks ties).
-  const key = (e) => (e.d || "9999") + String(e.n).padStart(5, "0");
-  out.sort((a, b) => (S.prefs.sort === "asc" ? (key(a) < key(b) ? -1 : 1) : (key(a) < key(b) ? 1 : -1)));
+  out.sort((a, b) => (S.prefs.sort === "asc" ? (dateKey(a) < dateKey(b) ? -1 : 1) : (dateKey(a) < dateKey(b) ? 1 : -1)));
   return out;
 }
+function renderList(toTop) {
+  if (curView() !== "episodes") return;
+  const items = visible(), list = $("#list");
+  if (!EPS.length) list.innerHTML = `<div class="empty">The episode list is being built for the first time.<br>It takes about 30 minutes — then reopen the app.</div>`;
+  else if (!items.length) list.innerHTML = `<div class="empty">Nothing here with these filters.</div>`;
+  else {
+    let html = "", lastY = null;
+    for (const e of items) {
+      const y = yearOf(e);
+      if (S.prefs.year === "all" && y !== lastY) { html += `<li class="yearhdr">${y || "Undated"}</li>`; lastY = y; }
+      const k = "e" + e.n; ROWCTX[k] = { n: e.n };
+      html += rowHTML(k);
+    }
+    list.innerHTML = html;
+  }
+  const nPlayed = items.filter((e) => S.played[e.n]).length;
+  $("#summary").textContent = EPS.length ? `${S.prefs.year === "all" ? "All years" : S.prefs.year} · ${plural(items.length, "episode")} · ${nPlayed} played` : "";
+  renderContinue();
+  if (toTop) window.scrollTo({ top: 0 });
+}
 
-// ---------- list ----------
-function pickedActs(n) { const c = currentColl(); return c ? (c.byN[n] || []).filter(Boolean) : []; }
-function rowHTML(e) {
-  const st = status(e.n), p = S.prog[e.n], open = openN === e.n, isCur = cur === e.n;
+// ---------- lists ----------
+function favItems() {
+  return Object.entries(S.fav).filter(([n]) => BY[n]).sort((a, b) => b[1] - a[1]).map(([n]) => ({ n: +n }));
+}
+function listById(id) {
+  if (id === "favourites") return { id, name: "Favourites", group: "yours", source: "Saved on this phone", items: favItems(), note: "Tap ♡ on any episode to add it here. Newest first." };
+  return LBY[id];
+}
+function listProgress(L) { const done = L.items.filter(itemDone).length; return { done, total: L.items.length }; }
+function listRowHTML(L, icon, cls) {
+  const { done, total } = listProgress(L);
+  const isFav = L.id === "favourites";
+  const unit = isFav ? "episode" : L.items.some((it) => it.act) ? "pick" : "episode";
+  const meta = [plural(total, unit), L.group === "web" && L.source && L.id !== "most-loved" ? L.source : null, L.year].filter(Boolean).join(" · ");
+  return `<button class="lrow" data-list="${esc(L.id)}"><span class="lic ${cls}">${icon}</span>
+    <span class="grow"><div class="nm">${esc(L.name)}</div><div class="mt">${esc(meta)}${done ? ` · ${done} heard` : ""}</div>
+    ${total && !isFav ? `<div class="bar"><i style="width:${((done / total) * 100).toFixed(1)}%"></i></div>` : ""}</span><span class="chev2"></span></button>`;
+}
+function renderListsIndex() {
+  const sec = (id, title, lists, icon, cls, show) => {
+    if (!lists.length) return "";
+    const open = expanded[id] || lists.length <= show + 1;
+    const shown = open ? lists : lists.slice(0, show);
+    return `<div class="lsec">${title}</div>` + shown.map((L) => listRowHTML(L, L.id === "all-picks" || L.id === "most-loved" ? "★" : icon, L.id === "all-picks" || L.id === "most-loved" ? "star" : cls)).join("") +
+      (open ? "" : `<button class="more" data-more="${id}">+ ${lists.length - show} more</button>`);
+  };
+  const tal = LISTS.filter((L) => L.group === "combined" || L.group === "tal" || L.group === "staff");
+  const web = LISTS.filter((L) => L.group === "web");
+  $("#vLists").innerHTML =
+    `<div class="lsec">Yours</div>` + listRowHTML(listById("favourites"), "♥", "fav") +
+    sec("tal", "From This American Life", tal, "◆", "", 5) +
+    sec("web", "Around the web", web, "◎", "web", 4) +
+    (LISTS.length ? `<div class="note" style="margin-top:14px">Lists from This American Life refresh every morning. "Around the web" is a snapshot of published lists and fan threads from Oct 2026.</div>` : `<div class="empty">Lists will appear after the next update.</div>`);
+}
+$("#vLists").addEventListener("click", (e) => {
+  const m = e.target.closest("[data-more]"); if (m) { expanded[m.dataset.more] = true; renderListsIndex(); return; }
+  const r = e.target.closest("[data-list]"); if (r) { S.prefs.list = r.dataset.list; showView("list"); }
+});
+
+function listEntries(L) {
+  let items = L.items.map((it, i) => ({ it, i }));
+  if (!L.ranked && L.id !== "favourites") items.sort((a, b) => (dateKey(BY[a.it.n]) < dateKey(BY[b.it.n]) ? -1 : dateKey(BY[a.it.n]) > dateKey(BY[b.it.n]) ? 1 : a.i - b.i));
+  return items;
+}
+function renderListView() {
+  const L = listById(S.prefs.list);
+  if (!L) { showView("lists"); return; }
+  const { done, total } = listProgress(L);
+  const by = [L.source, L.by && L.by !== L.source ? L.by : null, L.year].filter(Boolean).join(" · ");
+  $("#lhead").innerHTML = `<div class="lhead">
+    <button class="back" id="lback">‹ Lists</button>
+    <h2>${esc(L.name)}</h2>
+    ${by ? `<div class="mt">${esc(by)}${L.url ? ` · <a href="${esc(L.url)}" target="_blank" rel="noopener">original list ↗</a>` : ""}</div>` : ""}
+    ${L.note ? `<div class="nt">${esc(L.note)}</div>` : ""}
+    ${total ? `<div class="prog">${done} of ${plural(total, L.items.some((it) => it.act) ? "pick" : "episode")} heard</div>` : ""}
+    <div class="row2">
+      ${total && done < total ? `<button class="abtn primary" id="playNext">${ICON_PLAY}Play next unheard</button>` : ""}
+      <div class="minseg" id="lfilter"><button data-v="all" class="${S.prefs.listFilter === "all" ? "on" : ""}">All</button><button data-v="unheard" class="${S.prefs.listFilter === "unheard" ? "on" : ""}">Unheard</button></div>
+    </div></div>`;
+  const entries = listEntries(L).filter(({ it }) => S.prefs.listFilter !== "unheard" || !itemDone(it));
+  let html = "";
+  entries.forEach(({ it, i }) => {
+    const k = `${L.id}:${i}`;
+    ROWCTX[k] = { n: it.n, item: it, list: L, rank: L.ranked ? i + 1 : null };
+    html += rowHTML(k);
+  });
+  $("#llist").innerHTML = html || `<div class="empty">${total ? "You've heard everything in this list." : L.id === "favourites" ? "No favourites yet. Tap ♡ on any episode to add it here." : "This list is empty."}</div>`;
+  $("#lback").onclick = () => showView("lists");
+  const pn = $("#playNext"); if (pn) pn.onclick = () => { const nx = listEntries(L).find(({ it }) => !itemDone(it) && BY[it.n].mp3); if (nx) playItem(nx.it); };
+  $("#lfilter").onclick = (e) => { const b = e.target.closest("button"); if (b) { S.prefs.listFilter = b.dataset.v; persist(); renderListView(); } };
+}
+
+// ---------- rows (shared by Episodes and every list) ----------
+function rowHTML(k) {
+  const ctx = ROWCTX[k], e = BY[ctx.n], it = ctx.item;
+  const st = status(e.n), p = S.prog[e.n], open = openK === k, isCur = cur === e.n, fav = !!S.fav[e.n];
   let extra = "";
   if (p && p.p > 20 && p.d && !S.played[e.n]) {
     const pct = Math.min(100, (p.p / p.d) * 100);
     extra = `<div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div><div class="left">${Math.max(1, Math.round((p.d - p.p) / 60))} min left</div>`;
   }
-  const col = currentColl();
-  if (col && col.byN[e.n]) {
-    const acts = col.byN[e.n].filter(Boolean).length;
-    extra += `<div class="pickline">★ ${esc(col.name)}${acts ? ` · ${acts > 1 ? acts + " acts" : "one act"} picked` : ""}</div>`;
+  if (it && it.act) {
+    const heard = itemDone(it);
+    extra += `<div class="pickline${heard ? " heard" : ""}">${heard ? "✓ Heard: " : "★ Picked: "}${esc(it.alabel || "one act")}</div>`;
   }
+  if (it && it.count && ctx.list) extra += `<div class="pickline">${ctx.list.id === "web-fan-favourites" ? `Named by ${it.count} fans` : `On ${it.count} lists`}</div>`;
+  if (it && it.from && ctx.list && ctx.list.id === "all-picks") extra += `<div class="fromline">${esc(it.from.join(" · "))}</div>`;
+  const label = it && it.act && typeof it.at === "number" ? "Play this act" : "Play";
   const playBtn = e.mp3
-    ? `<button class="play" data-act="play" aria-label="${isCur && !audio.paused ? "Pause" : "Play"}">${isCur && !audio.paused ? ICON_PAUSE : ICON_PLAY}</button>`
+    ? `<button class="play" data-act="play" aria-label="${isCur && !audio.paused ? "Pause" : label}">${isCur && !audio.paused ? ICON_PAUSE : ICON_PLAY}</button>`
     : `<a class="play ext" href="${esc(e.url)}" target="_blank" rel="noopener" aria-label="Open on their site">${ICON_EXT}</a>`;
-  return `<li class="ep${st === "played" ? " played" : ""}${isCur ? " playing" : ""}${open ? " open" : ""}" data-n="${e.n}">
+  const done = it ? itemDone(it) : st === "played";
+  return `<li class="ep${done ? " played" : ""}${isCur ? " playing" : ""}${open ? " open" : ""}" data-n="${e.n}" data-k="${esc(k)}">
     <div class="head">
       <div class="body">
-        <div class="meta"><span class="num">#${e.n}</span><span>${esc(fmtDate(e.d))}</span>${st === "played" ? '<span class="badge">✓ Played</span>' : ""}${isCur ? '<span class="now">Now playing</span>' : ""}<span class="chev"></span></div>
+        <div class="meta">${ctx.rank ? `<span class="rank">${ctx.rank}</span>` : ""}<span class="num">#${e.n}</span><span>${esc(fmtDate(e.d))}</span>${st === "played" ? '<span class="badge">✓ Played</span>' : ""}${isCur ? '<span class="now">Now playing</span>' : ""}<span class="chev"></span></div>
         <div class="title">${esc(e.t)}</div>
         ${e.desc ? `<div class="desc">${esc(e.desc)}</div>` : ""}
         ${extra}
       </div>
-      ${playBtn}
+      <div class="btncol"><button class="heart${fav ? " on" : ""}" data-act="fav" aria-label="${fav ? "Remove from favourites" : "Add to favourites"}">${fav ? HEART_ON : HEART_OFF}</button>${playBtn}</div>
     </div>
-    ${open ? `<div class="det">${detailsHTML(e)}</div>` : ""}
+    ${open ? `<div class="det">${detailsHTML(e, ctx)}</div>` : ""}
   </li>`;
 }
 function spotifyHref(s) {
   return s.sp ? `https://open.spotify.com/track/${encodeURIComponent(s.sp)}` : `https://open.spotify.com/search/${encodeURIComponent((s.t + " " + (s.a || "")).trim())}`;
 }
-function detailsHTML(e) {
-  const p = S.prog[e.n], played = !!S.played[e.n];
+function detailsHTML(e, ctx) {
+  const p = S.prog[e.n], played = !!S.played[e.n], fav = !!S.fav[e.n];
   const resume = p && p.p > 20 && p.d && !played;
-  const acts = [
-    e.mp3 ? `<button class="abtn primary" data-act="play">${ICON_PLAY}${cur === e.n && !audio.paused ? "Pause" : resume ? `Resume ${fmtTime(p.p)}` : "Play"}</button>` : `<a class="abtn primary" href="${esc(e.url)}" target="_blank" rel="noopener">Listen on their site</a>`,
+  const actions = [
+    e.mp3 ? `<button class="abtn primary" data-act="playep">${ICON_PLAY}${cur === e.n && !audio.paused ? "Pause" : resume ? `Resume ${fmtTime(p.p)}` : "Play episode"}</button>` : `<a class="abtn primary" href="${esc(e.url)}" target="_blank" rel="noopener">Listen on their site</a>`,
     `<button class="abtn${played ? " done" : ""}" data-act="toggle">${played ? "✓ Played" : "Mark played"}</button>`,
+    `<button class="abtn${fav ? " fav" : ""}" data-act="fav">${fav ? "♥ Favourite" : "♡ Favourite"}</button>`,
     `<button class="abtn" data-act="share">Share</button>`,
     `<a class="abtn" href="${esc(e.url)}" target="_blank" rel="noopener">Their site</a>`,
   ].join("");
@@ -405,16 +569,18 @@ function detailsHTML(e) {
   else if (d === null) body = `<div class="detnote">Act details didn't load. <button class="abtn" data-act="retry">Try again</button></div>`;
   else if (!d.acts || !d.acts.length) body = `<div class="detnote">No act details for this episode.</div>`;
   else {
-    const picks = pickedActs(e.n), col = currentColl();
-    body = d.acts.map((a) => {
-      const picked = a.u && picks.includes(a.u);
+    const pickedU = ctx.item && ctx.item.act;
+    body = d.acts.map((a, i) => {
+      const picked = pickedU && a.u === pickedU;
+      const next = d.acts[i + 1], end = next && typeof next.at === "number" ? next.at : null;
+      const heard = S.played[e.n] || (typeof a.at === "number" && end !== null && (S.far[e.n] || 0) >= end - 20);
       const songs = (a.songs || []).map((s) => `<div class="song"><span class="note">${ICON_NOTE}</span>
           <div class="st"><b>${esc(s.t)}</b>${s.a ? ` <span>— ${esc(s.a)}</span>` : ""}</div>
           <a class="spbtn${s.sp ? "" : " search"}" href="${spotifyHref(s)}" target="_blank" rel="noopener">${s.sp ? "Spotify" : "Find on Spotify"}</a></div>`).join("");
       const canJump = e.mp3 && typeof a.at === "number";
       return `<div class="act${picked ? " picked" : ""}">
         <div class="acthead"><div class="grow">
-          <div class="lbl">${esc(a.label || "")}${a.min ? ` · ${a.min} min` : ""}${picked ? ` · <span class="pk">★ ${esc(col.name)}</span>` : ""}</div>
+          <div class="lbl">${esc(a.label || "")}${a.min ? ` · ${a.min} min` : ""}${heard ? ` · <span class="hd">✓ heard</span>` : ""}${picked ? ` · <span class="pk">★ ${esc(ctx.list.name)}</span>` : ""}</div>
           ${a.title ? `<div class="at">${esc(a.title)}</div>` : ""}
         </div>${canJump ? `<button class="from" data-act="from" data-at="${a.at}">▶ Play from here</button>` : ""}</div>
         ${a.desc ? `<div class="ad">${esc(a.desc)}</div>` : ""}
@@ -423,79 +589,88 @@ function detailsHTML(e) {
       </div>`;
     }).join("");
     const exact = d.acts.flatMap((a) => a.songs || []).filter((s) => s.sp);
-    if (exact.length) body += `<div class="copysp"><button class="abtn" data-act="copysp">Copy ${exact.length} Spotify link${exact.length > 1 ? "s" : ""} for a playlist</button></div>`;
+    if (exact.length) body += `<div class="copysp"><button class="abtn" data-act="copysp">Copy ${plural(exact.length, "Spotify link")} for a playlist</button></div>`;
   }
-  return `<div class="actions">${acts}</div>${body}`;
+  return `<div class="actions">${actions}</div>${body}`;
 }
 async function loadDetails(n) {
   if (DET[n]) return;
-  const d = await getJSON(`details/${n}.json`);
-  DET[n] = d || null;
+  DET[n] = await getJSON(`details/${n}.json`) || null;
   updateRow(n);
-}
-
-function renderList(toTop) {
-  const items = visible(), list = $("#list");
-  if (!EPS.length) list.innerHTML = `<div class="empty">The episode list is being built for the first time.<br>It takes about 30 minutes — then reopen the app.</div>`;
-  else if (!items.length) list.innerHTML = `<div class="empty">Nothing here with these filters.</div>`;
-  else {
-    let html = "", lastY = null;
-    for (const e of items) {
-      const y = yearOf(e);
-      if (S.prefs.year === "all" && y !== lastY) { html += `<li class="yearhdr">${y || "Undated"}</li>`; lastY = y; }
-      html += rowHTML(e);
-    }
-    list.innerHTML = html;
-  }
-  const scope = [S.prefs.year === "all" ? "All years" : S.prefs.year, currentColl() ? currentColl().name : null].filter(Boolean).join(" · ");
-  const nPlayed = items.filter((e) => S.played[e.n]).length;
-  $("#summary").textContent = EPS.length ? `${scope} · ${items.length} episodes · ${nPlayed} played` : "";
-  renderContinue();
-  if (toTop) window.scrollTo({ top: 0 });
 }
 function updateRow(n) {
-  const old = document.querySelector(`#list .ep[data-n="${n}"]`);
-  if (!old || !BY[n]) return;
-  const t = document.createElement("template"); t.innerHTML = rowHTML(BY[n]).trim(); old.replaceWith(t.content.firstChild);
+  document.querySelectorAll(`.ep[data-n="${n}"]`).forEach((old) => {
+    const k = old.dataset.k; if (!ROWCTX[k]) return;
+    const t = document.createElement("template"); t.innerHTML = rowHTML(k).trim(); old.replaceWith(t.content.firstChild);
+  });
 }
-function toggleOpen(n) {
-  const prev = openN;
-  openN = openN === n ? null : n;
-  if (prev && prev !== n) updateRow(prev);
-  updateRow(n);
-  if (openN) loadDetails(n);
+function updateAll(n) {
+  // A change to one episode can move it in or out of filtered views or change list progress.
+  const v = curView();
+  if (v === "episodes" && S.prefs.filter === "all") { updateRow(n); renderContinue(); }
+  else if (v === "list" && S.prefs.listFilter === "all") { updateRow(n); refreshListHead(); }
+  else rerender();
 }
-$("#list").addEventListener("click", (ev) => {
+function refreshListHead() {
+  const L = listById(S.prefs.list); if (!L) return;
+  const el = $("#lhead .prog"); if (!el) return;
+  const { done, total } = listProgress(L);
+  el.textContent = `${done} of ${plural(total, L.items.some((it) => it.act) ? "pick" : "episode")} heard`;
+}
+function toggleOpen(k) {
+  const prev = openK; openK = openK === k ? null : k;
+  const reRow = (kk) => { const li = document.querySelector(`.ep[data-k="${CSS.escape(kk)}"]`); if (li) { const t = document.createElement("template"); t.innerHTML = rowHTML(kk).trim(); li.replaceWith(t.content.firstChild); } };
+  if (prev && prev !== k) reRow(prev);
+  reRow(k);
+  if (openK) loadDetails(ROWCTX[k].n);
+}
+function onRowClick(ev) {
   const li = ev.target.closest(".ep"); if (!li) return;
-  const n = +li.dataset.n, act = ev.target.closest("[data-act]");
-  if (ev.target.closest("a")) return; // links open normally
+  const k = li.dataset.k, ctx = ROWCTX[k]; if (!ctx) return;
+  const n = ctx.n, act = ev.target.closest("[data-act]");
+  if (ev.target.closest("a")) return;
   if (act) {
     const a = act.dataset.act;
-    if (a === "play") play(n);
+    if (a === "play") { if (cur === n && !audio.paused) audio.pause(); else if (ctx.item && cur !== n) playItem(ctx.item); else play(n); }
+    else if (a === "playep") play(n);
     else if (a === "toggle") togglePlayed(n);
+    else if (a === "fav") toggleFav(n);
     else if (a === "share") share(n);
-    else if (a === "from") playFrom(n, +act.dataset.at);
+    else if (a === "from") play(n, +act.dataset.at);
     else if (a === "copysp") copySpotify(n);
     else if (a === "retry") { delete DET[n]; updateRow(n); loadDetails(n); }
     return;
   }
-  if (ev.target.closest(".head")) toggleOpen(n);
-});
+  if (ev.target.closest(".head")) toggleOpen(k);
+}
+$("#list").addEventListener("click", onRowClick);
+$("#llist").addEventListener("click", onRowClick);
+function playItem(it) {
+  // A picked act starts at that act unless you're already partway through it.
+  if (it.act && typeof it.at === "number") {
+    const far = S.prog[it.n] ? S.prog[it.n].p : 0;
+    const inAct = far > it.at + 20 && (typeof it.end !== "number" || far < it.end - 20);
+    play(it.n, inAct ? Math.max(0, far - 3) : it.at);
+  } else play(it.n);
+}
 
+function toggleFav(n) {
+  if (S.fav[n]) { delete S.fav[n]; toast("Removed from favourites"); } else { S.fav[n] = Date.now(); toast("Added to favourites ♥"); }
+  persist();
+  if (curView() === "list" && S.prefs.list === "favourites") renderListView(); else updateRow(n);
+}
 async function share(n) {
   const e = BY[n]; const title = `This American Life #${n}: ${e.t}`;
-  try {
-    if (navigator.share) { await navigator.share({ title, text: title, url: e.url }); return; }
-  } catch (err) { if (err.name === "AbortError") return; }
+  try { if (navigator.share) { await navigator.share({ title, text: title, url: e.url }); return; } }
+  catch (err) { if (err.name === "AbortError") return; }
   try { await navigator.clipboard.writeText(`${title}\n${e.url}`); toast("Link copied"); } catch { toast(e.url); }
 }
 async function copySpotify(n) {
   const d = DET[n]; if (!d) return;
   const all = d.acts.flatMap((a) => a.songs || []), exact = all.filter((s) => s.sp);
-  const txt = exact.map((s) => `https://open.spotify.com/track/${s.sp}`).join("\n");
   try {
-    await navigator.clipboard.writeText(txt);
-    toast(`Copied ${exact.length} Spotify link${exact.length > 1 ? "s" : ""}${all.length > exact.length ? ` (${all.length - exact.length} not found on Spotify)` : ""} — paste into a playlist in Spotify on your computer`);
+    await navigator.clipboard.writeText(exact.map((s) => `https://open.spotify.com/track/${s.sp}`).join("\n"));
+    toast(`Copied ${plural(exact.length, "Spotify link")}${all.length > exact.length ? ` (${all.length - exact.length} not found on Spotify)` : ""} — paste into a playlist in Spotify on your computer`);
   } catch { toast("Couldn't copy — try again"); }
 }
 
@@ -515,11 +690,9 @@ function renderContinue() {
 $("#cont").addEventListener("click", (e) => { const b = e.target.closest(".cont"); if (b) play(+b.dataset.n); });
 
 function togglePlayed(n) {
-  if (S.played[n]) { delete S.played[n]; logEvt(n, "u"); toast(`Marked #${n} unplayed`); }
+  if (S.played[n]) { delete S.played[n]; delete S.far[n]; logEvt(n, "u"); toast(`Marked #${n} unplayed everywhere`); }
   else { S.played[n] = Date.now(); delete S.prog[n]; logEvt(n, "f"); }
-  persist();
-  if (S.prefs.filter !== "all") renderList(); else { updateRow(n); renderContinue(); }
-  if (!$("#history").classList.contains("hide")) renderHistory();
+  persist(); updateAll(n);
 }
 function logEvt(n, a) {
   const last = S.log[S.log.length - 1];
@@ -531,7 +704,7 @@ function logEvt(n, a) {
 // ---------- history ----------
 function renderHistory() {
   const entries = S.log.filter((x) => BY[x.n] && x.a !== "u").slice().reverse().slice(0, 400);
-  let html = `<div class="summary">${Object.keys(S.played).length} played · ${inProgressList().length} started · ${EPS.length} total</div>`;
+  let html = `<div class="summary">${Object.keys(S.played).length} played · ${inProgressList().length} started · ${Object.keys(S.fav).length} favourites</div>`;
   if (!entries.length) html += `<div class="empty">Nothing yet. Episodes you start and finish show up here.</div>`;
   let day = "";
   for (const x of entries) {
@@ -542,18 +715,9 @@ function renderHistory() {
     html += `<button class="hist" data-n="${x.n}"><span class="ic ${fin ? "f" : ""}">${fin ? "✓" : "▶"}</span>
       <span style="min-width:0"><div class="t">${esc(e.t)}</div><div class="s">#${x.n} · ${fin ? "Finished" : "Started"} ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</div></span></button>`;
   }
-  $("#history").innerHTML = html;
+  $("#vHistory").innerHTML = html;
 }
-$("#history").addEventListener("click", (e) => { const b = e.target.closest(".hist"); if (b) play(+b.dataset.n); });
-function showHistory(on) {
-  $("#history").classList.toggle("hide", !on);
-  $("#browse").classList.toggle("hide", on);
-  $("#browseCtl").classList.toggle("hide", on);
-  $("#histBtn").classList.toggle("on", on);
-  if (on) renderHistory(); else renderList();
-  window.scrollTo({ top: 0 });
-}
-$("#histBtn").addEventListener("click", () => showHistory($("#history").classList.contains("hide")));
+$("#vHistory").addEventListener("click", (e) => { const b = e.target.closest(".hist"); if (b) play(+b.dataset.n); });
 
 // ---------- player ----------
 const audio = new Audio();
@@ -593,12 +757,9 @@ function play(n, startAt) {
   logEvt(n, "s"); persist();
   showPlayer(n); setMedia(e);
   if (prev) updateRow(prev);
-  updateRow(n); renderContinue();
+  updateRow(n); if (curView() === "episodes") renderContinue();
 }
-function playFrom(n, at) { play(n, at); }
-function applyPendingSeek() {
-  if (pendingSeek != null && audio.duration) { try { audio.currentTime = pendingSeek; pendingSeek = null; } catch {} }
-}
+function applyPendingSeek() { if (pendingSeek != null && audio.duration) { try { audio.currentTime = pendingSeek; pendingSeek = null; } catch {} } }
 const refreshCurRow = () => { if (cur) updateRow(cur); };
 audio.addEventListener("loadedmetadata", applyPendingSeek);
 audio.addEventListener("canplay", applyPendingSeek);
@@ -624,16 +785,20 @@ function savePos() {
   if (!cur || !audio.currentTime) return;
   const d = audio.duration || (S.prog[cur] && S.prog[cur].d) || 0, p = audio.currentTime;
   lastSave = Date.now();
+  const wasFar = S.far[cur] || 0;
+  if (p > wasFar) S.far[cur] = p;
   if (d && p >= d * 0.95) { finish(cur); return; }
   S.prog[cur] = { p, d, t: Date.now() };
   persist();
-  if (openN !== cur) updateRow(cur);
+  if (!openK || (ROWCTX[openK] || {}).n !== cur) updateRow(cur);
+  if (curView() === "list") refreshListHead();
 }
 function finish(n) {
   if (!n) return;
   delete S.prog[n];
-  if (!S.played[n]) { S.played[n] = Date.now(); logEvt(n, "f"); toast(`Finished #${n} — marked played`); }
-  persist(); updateRow(n); renderContinue();
+  if (audio.duration) S.far[n] = Math.max(S.far[n] || 0, audio.duration);
+  if (!S.played[n]) { S.played[n] = Date.now(); logEvt(n, "f"); toast(`Finished #${n} — marked played everywhere`); }
+  persist(); updateAll(n);
 }
 function setPP(loading) {
   const el = $("#pp");
@@ -673,11 +838,12 @@ seek.addEventListener("change", () => {
 });
 $("#pInfo").addEventListener("click", () => {
   if (!shown) return;
-  if (!$("#history").classList.contains("hide")) showHistory(false);
-  const row = document.querySelector(`#list .ep[data-n="${shown}"]`);
-  if (!row) { toast("This episode isn't in the current list — change the filters to see it"); return; }
-  if (openN !== shown) toggleOpen(shown);
-  const r = document.querySelector(`#list .ep[data-n="${shown}"]`);
+  // Open the playing episode's details in whichever list view is showing it, or in Episodes.
+  let li = document.querySelector(`.ep[data-n="${shown}"]`);
+  if (!li) { if (curView() !== "episodes") showView("episodes"); li = document.querySelector(`.ep[data-n="${shown}"]`); }
+  if (!li) { toast("This episode isn't in the current list — change the filters to see it"); return; }
+  if (openK !== li.dataset.k) toggleOpen(li.dataset.k);
+  const r = document.querySelector(`.ep[data-k="${CSS.escape(li.dataset.k)}"]`);
   if (r) r.scrollIntoView({ block: "start", behavior: "smooth" });
 });
 function setMedia(e) {
@@ -702,7 +868,6 @@ function openSheet(html) {
 }
 function closeSheet() { $("#sheet").classList.add("hide"); $("#sheetBg").classList.add("hide"); }
 $("#sheetBg").addEventListener("click", closeSheet);
-
 function spotifyLine() {
   const st = DATA.spotifyStats || {};
   if (!DATA.spotify || !st.songs) return `<div class="note">Songs link to Spotify search.</div>`;
@@ -714,14 +879,14 @@ function openSettings() {
   openSheet(`<h2>Settings</h2>
     <div class="row"><div class="lbl">Episode list</div>
       <div class="val ${f.warn ? "warn" : ""}">${f.warn ? "" : "✓ "}${esc(f.text)}</div>
-      ${DATA.updated ? `<div class="note">${EPS.length} episodes, ${DATA.withAudio ?? EPS.filter((e) => e.mp3).length} playable here · ${COLLS.length} curated lists. Checks for new episodes every morning.</div>` : ""}
+      ${DATA.updated ? `<div class="note">${EPS.length} episodes, ${DATA.withAudio ?? EPS.filter((e) => e.mp3).length} playable here · ${LISTS.length} lists. Checks for new episodes every morning.</div>` : ""}
       ${spotifyLine()}
       ${(DATA.warnings || []).slice(1).map((w) => `<div class="note" style="color:var(--warn)">${esc(w)}</div>`).join("")}
     </div>
     <div class="row"><div class="lbl">Your history (saved on this phone only)</div>
-      <div class="val">${played} played · ${inProgressList().length} started${storageOk ? "" : ' · <span style="color:var(--warn)">not saving — storage full</span>'}</div>
+      <div class="val">${played} played · ${inProgressList().length} started · ${Object.keys(S.fav).length} favourites${storageOk ? "" : ' · <span style="color:var(--warn)">not saving — storage full</span>'}</div>
       <button class="btn primary" id="exp">Save a backup</button><button class="btn" id="imp">Restore from backup</button>
-      <div class="note">A backup is one small file. Keep it in Files or iCloud so a phone reset or cleared browser data doesn't wipe your history.</div>
+      <div class="note">A backup is one small file with your plays, progress and favourites. Keep it in Files or iCloud so a phone reset or cleared browser data doesn't wipe them.</div>
     </div>
     <div class="row"><div class="note">Audio, episode info and curated lists come from thisamericanlife.org. This is a personal index for easier browsing.</div></div>`);
   $("#exp").onclick = exportBackup;
@@ -747,8 +912,8 @@ $("#importFile").addEventListener("change", async (ev) => {
     const when = data.exported ? new Date(data.exported).toLocaleDateString() : "unknown date";
     if (!confirm(`Replace the history on this phone with the backup from ${when}?`)) return;
     audio.pause(); cur = null;
-    S = Object.assign(blank(), data.state); S.prefs = Object.assign(blank().prefs, S.prefs || {});
-    persist(); closeSheet(); renderPickers(); renderList(); restorePlayer();
+    S = normalize(data.state);
+    persist(); closeSheet(); renderYears(); markControls(); restorePlayer(); showView(S.prefs.view);
     toast("Backup restored");
   } catch { toast("That file isn't a TAL Archive backup."); }
 });

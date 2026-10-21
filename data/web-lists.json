@@ -1,0 +1,663 @@
+{
+ "snapshot": "2026-10-21",
+ "lists": [
+  {
+   "id": "tal-25-classic-episodes",
+   "name": "25 Years: Classic Episodes",
+   "group": "tal",
+   "source": "This American Life",
+   "by": null,
+   "year": 2020,
+   "url": "https://www.thisamericanlife.org/25years",
+   "items": [
+    {
+     "n": 513
+    },
+    {
+     "n": 360
+    },
+    {
+     "n": 218
+    },
+    {
+     "n": 339
+    },
+    {
+     "n": 165
+    },
+    {
+     "n": 172
+    },
+    {
+     "n": 550
+    },
+    {
+     "n": 175
+    },
+    {
+     "n": 206
+    }
+   ],
+   "countAs": "TAL 25 Years"
+  },
+  {
+   "id": "tal-25-award-winners",
+   "name": "25 Years: Award Winners",
+   "group": "tal",
+   "source": "This American Life",
+   "by": null,
+   "year": 2020,
+   "url": "https://www.thisamericanlife.org/25years",
+   "items": [
+    {
+     "n": 688
+    },
+    {
+     "n": 600,
+     "act": "Party in the U.S.A."
+    },
+    {
+     "n": 581
+    },
+    {
+     "n": 562
+    },
+    {
+     "n": 563
+    },
+    {
+     "n": 487
+    },
+    {
+     "n": 488
+    },
+    {
+     "n": 465
+    },
+    {
+     "n": 355
+    },
+    {
+     "n": 310
+    },
+    {
+     "n": 266
+    }
+   ],
+   "countAs": "TAL 25 Years"
+  },
+  {
+   "id": "tal-25-new-favorites",
+   "name": "25 Years: New Favorites",
+   "group": "tal",
+   "source": "This American Life",
+   "by": null,
+   "year": 2020,
+   "url": "https://www.thisamericanlife.org/25years",
+   "items": [
+    {
+     "n": 692
+    },
+    {
+     "n": 597
+    },
+    {
+     "n": 640
+    },
+    {
+     "n": 638
+    },
+    {
+     "n": 706
+    },
+    {
+     "n": 654
+    }
+   ],
+   "countAs": "TAL 25 Years"
+  },
+  {
+   "id": "tal-favorite-favorites",
+   "name": "Ira's favorite favorites",
+   "group": "tal",
+   "source": "This American Life",
+   "by": "Ira Glass",
+   "year": 2013,
+   "url": "https://www.thisamericanlife.org/about/announcements/favorite-favorite-lists",
+   "items": [
+    {
+     "n": 175,
+     "act": "Act Three"
+    },
+    {
+     "n": 82,
+     "act": "Act Three"
+    },
+    {
+     "n": 199
+    },
+    {
+     "n": 281,
+     "act": "Act Three"
+    },
+    {
+     "n": 204
+    },
+    {
+     "n": 317,
+     "act": "Act One"
+    },
+    {
+     "n": 181
+    },
+    {
+     "n": 281,
+     "act": "Act One"
+    },
+    {
+     "n": 172
+    },
+    {
+     "n": 360
+    }
+   ],
+   "countAs": "TAL Favorite Favorite Lists"
+  },
+  {
+   "id": "web-ira-glass-10",
+   "name": "Ira Glass's 10 favourites",
+   "group": "web",
+   "source": "Open Culture",
+   "by": "Ira Glass",
+   "year": 2015,
+   "url": "https://openculture.com/2015/11/listen-to-ira-glass-10-favorite-episodes-of-this-american-life.html",
+   "items": [
+    {
+     "n": 109
+    },
+    {
+     "n": 487
+    },
+    {
+     "n": 488
+    },
+    {
+     "n": 355
+    },
+    {
+     "n": 206
+    },
+    {
+     "n": 360
+    },
+    {
+     "n": 339,
+     "act": "Act One"
+    },
+    {
+     "n": 175,
+     "act": "Act Three"
+    },
+    {
+     "n": 281,
+     "act": "Act One"
+    },
+    {
+     "n": 84
+    },
+    {
+     "n": 304
+    }
+   ]
+  },
+  {
+   "id": "web-flavorwire-15",
+   "name": "The 15 best episodes",
+   "group": "web",
+   "source": "Flavorwire",
+   "by": "Jason Bailey",
+   "year": 2013,
+   "url": "https://www.flavorwire.com/403383/the-15-best-this-american-life-episodes-so-far",
+   "items": [
+    {
+     "n": 47
+    },
+    {
+     "n": 61,
+     "act": "Opening Night"
+    },
+    {
+     "n": 84
+    },
+    {
+     "n": 172
+    },
+    {
+     "n": 178
+    },
+    {
+     "n": 186
+    },
+    {
+     "n": 204
+    },
+    {
+     "n": 266
+    },
+    {
+     "n": 296
+    },
+    {
+     "n": 323
+    },
+    {
+     "n": 355
+    },
+    {
+     "n": 360
+    },
+    {
+     "n": 414,
+     "act": "Act Two"
+    },
+    {
+     "n": 430
+    },
+    {
+     "n": 460
+    }
+   ]
+  },
+  {
+   "id": "web-slate-500",
+   "name": "Where do I start?",
+   "group": "web",
+   "source": "Slate",
+   "by": "David Haglund",
+   "year": 2013,
+   "url": "https://www.slate.com/blogs/browbeat/2013/07/11/this_american_life_best_episodes_in_honor_of_episode_500_audio.html",
+   "items": [
+    {
+     "n": 204
+    },
+    {
+     "n": 61
+    },
+    {
+     "n": 355
+    },
+    {
+     "n": 109
+    },
+    {
+     "n": 172
+    },
+    {
+     "n": 487
+    },
+    {
+     "n": 488
+    },
+    {
+     "n": 104
+    },
+    {
+     "n": 241
+    },
+    {
+     "n": 434
+    },
+    {
+     "n": 181
+    }
+   ]
+  },
+  {
+   "id": "web-hazlitt-500",
+   "name": "This American Life turns 500",
+   "group": "web",
+   "source": "Hazlitt",
+   "by": "Chris Berube",
+   "year": 2013,
+   "url": "https://hazlitt.net/node/844716",
+   "items": [
+    {
+     "n": 38,
+     "act": "Medieval Times"
+    },
+    {
+     "n": 84
+    },
+    {
+     "n": 218
+    },
+    {
+     "n": 238,
+     "act": "Is This Thing On?"
+    },
+    {
+     "n": 241
+    },
+    {
+     "n": 339
+    },
+    {
+     "n": 354
+    },
+    {
+     "n": 389,
+     "act": "The Scorpion and the Tortoise"
+    },
+    {
+     "n": 454
+    },
+    {
+     "n": 460
+    },
+    {
+     "n": 465
+    }
+   ]
+  },
+  {
+   "id": "web-prospect",
+   "name": "The best of This American Life",
+   "group": "web",
+   "source": "Prospect",
+   "by": null,
+   "year": 2013,
+   "url": "https://prospectmagazine.co.uk/culture/51117/the-best-of-this-american-life",
+   "items": [
+    {
+     "n": 383,
+     "act": "Prologue"
+    },
+    {
+     "n": 423
+    },
+    {
+     "n": 268
+    },
+    {
+     "n": 441
+    },
+    {
+     "n": 282
+    },
+    {
+     "n": 471
+    },
+    {
+     "n": 90
+    },
+    {
+     "n": 218
+    },
+    {
+     "n": 286
+    }
+   ]
+  },
+  {
+   "id": "web-podcast-review-25",
+   "name": "The 25 best episodes",
+   "group": "web",
+   "source": "Podcast Review",
+   "by": null,
+   "year": 2020,
+   "url": "https://podcastreview.org/list/best-episodes-of-this-american-life/",
+   "items": [
+    {
+     "n": 15
+    },
+    {
+     "n": 61
+    },
+    {
+     "n": 80
+    },
+    {
+     "n": 109
+    },
+    {
+     "n": 172
+    },
+    {
+     "n": 199
+    },
+    {
+     "n": 205
+    },
+    {
+     "n": 220
+    },
+    {
+     "n": 241
+    },
+    {
+     "n": 266
+    },
+    {
+     "n": 305
+    },
+    {
+     "n": 328
+    },
+    {
+     "n": 339
+    },
+    {
+     "n": 355
+    },
+    {
+     "n": 360
+    },
+    {
+     "n": 371
+    },
+    {
+     "n": 396
+    },
+    {
+     "n": 460
+    },
+    {
+     "n": 487
+    },
+    {
+     "n": 513
+    },
+    {
+     "n": 539
+    },
+    {
+     "n": 597
+    },
+    {
+     "n": 627
+    },
+    {
+     "n": 664
+    },
+    {
+     "n": 688
+    }
+   ]
+  },
+  {
+   "id": "web-resonate",
+   "name": "Best episodes to start with",
+   "group": "web",
+   "source": "Resonate Recordings",
+   "by": null,
+   "year": 2019,
+   "url": "https://resonaterecordings.com/curated-podcast-lists/this-american-life/",
+   "items": [
+    {
+     "n": 489
+    },
+    {
+     "n": 508
+    },
+    {
+     "n": 513
+    },
+    {
+     "n": 560
+    },
+    {
+     "n": 619
+    },
+    {
+     "n": 664
+    },
+    {
+     "n": 339
+    },
+    {
+     "n": 482
+    },
+    {
+     "n": 355
+    },
+    {
+     "n": 460
+    }
+   ]
+  },
+  {
+   "id": "web-fan-favourites",
+   "name": "Fan favourites",
+   "group": "web",
+   "source": "Reddit and MetaFilter",
+   "by": "r/ThisAmericanLife, MetaFilter",
+   "year": 2024,
+   "url": "https://www.reddit.com/r/ThisAmericanLife/comments/1e0278o/favorite_episode",
+   "ranked": true,
+   "items": [
+    {
+     "n": 323,
+     "count": 10
+    },
+    {
+     "n": 199,
+     "count": 9
+    },
+    {
+     "n": 513,
+     "count": 7
+    },
+    {
+     "n": 388,
+     "count": 6
+    },
+    {
+     "n": 61,
+     "count": 6
+    },
+    {
+     "n": 352,
+     "count": 6
+    },
+    {
+     "n": 109,
+     "count": 5
+    },
+    {
+     "n": 218,
+     "count": 5
+    },
+    {
+     "n": 419,
+     "count": 5
+    },
+    {
+     "n": 492,
+     "count": 4
+    },
+    {
+     "n": 206,
+     "count": 4
+    },
+    {
+     "n": 304,
+     "count": 4
+    },
+    {
+     "n": 355,
+     "count": 4
+    },
+    {
+     "n": 175,
+     "count": 3
+    },
+    {
+     "n": 443,
+     "count": 3
+    },
+    {
+     "n": 172,
+     "count": 3
+    },
+    {
+     "n": 534,
+     "count": 3
+    },
+    {
+     "n": 487,
+     "count": 3
+    },
+    {
+     "n": 488,
+     "count": 3
+    },
+    {
+     "n": 286,
+     "count": 2
+    },
+    {
+     "n": 654,
+     "count": 2
+    },
+    {
+     "n": 754,
+     "count": 2
+    },
+    {
+     "n": 178,
+     "count": 2
+    },
+    {
+     "n": 460,
+     "count": 2
+    },
+    {
+     "n": 484,
+     "count": 2
+    },
+    {
+     "n": 430,
+     "count": 2
+    },
+    {
+     "n": 403,
+     "count": 2
+    },
+    {
+     "n": 204,
+     "count": 2
+    },
+    {
+     "n": 253,
+     "count": 2
+    },
+    {
+     "n": 220,
+     "count": 2
+    }
+   ],
+   "countAs": "fans",
+   "note": "Ranked by how many fans named each episode across two Reddit threads and two MetaFilter threads."
+  }
+ ]
+}
