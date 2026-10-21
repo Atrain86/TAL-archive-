@@ -377,7 +377,7 @@ def artist_parts(a):
 
 class Spotify:
     def __init__(self, cid, secret):
-        self.cid, self.secret, self.token, self.exp = cid, secret, None, 0
+        self.cid, self.secret, self.token, self.exp, self.why = cid, secret, None, 0, ""
 
     def auth(self):
         if self.token and time.time() < self.exp - 60:
@@ -392,7 +392,16 @@ class Spotify:
                 d = json.load(r)
             self.token, self.exp = d["access_token"], time.time() + d.get("expires_in", 3600)
             return True
+        except urllib.error.HTTPError as e:
+            try:
+                body = json.load(e)
+                self.why = f"{body.get('error', '')} {body.get('error_description', '')}".strip()
+            except Exception:
+                self.why = f"HTTP {e.code}"
+            log(f"Spotify sign-in didn't work: {self.why}")
+            return False
         except Exception as e:
+            self.why = type(e).__name__
             log(f"Spotify sign-in didn't work: {e}")
             return False
 
@@ -449,7 +458,8 @@ class Spotify:
 
 def add_spotify(details):
     global SPOTIFY_OK
-    cid, secret = os.environ.get("SPOTIFY_CLIENT_ID"), os.environ.get("SPOTIFY_CLIENT_SECRET")
+    cid = re.sub(r"\s+", "", os.environ.get("SPOTIFY_CLIENT_ID") or "")
+    secret = re.sub(r"\s+", "", os.environ.get("SPOTIFY_CLIENT_SECRET") or "")
     if not cid and not secret:
         log("No Spotify keys set: songs keep Spotify search links.")
         return None
@@ -459,7 +469,10 @@ def add_spotify(details):
         return f"Spotify setup needs one more step: the GitHub secret {missing} wasn't found — check its name."
     sp = Spotify(cid, secret)
     if not sp.auth():
-        return "Spotify keys didn't work — songs use Spotify search links until they're re-checked."
+        why = sp.why or "no reason given"
+        shape = "" if (len(cid) == 32 and len(secret) == 32) else \
+            f" (the keys are {len(cid)} and {len(secret)} characters; both should be 32)"
+        return f"Spotify didn't accept the keys: {why}{shape}. Songs use search links until they're re-checked."
     SPOTIFY_OK = True
     cache = read_json(SPOTIFY_CACHE, {})
     today = datetime.now(timezone.utc).date()
