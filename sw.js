@@ -1,5 +1,5 @@
 // App shell works offline; the episode list is always fetched fresh when online.
-const CACHE = "tal-archive-v3";
+const CACHE = "tal-archive-v4";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => {
