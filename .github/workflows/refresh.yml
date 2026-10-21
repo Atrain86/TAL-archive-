@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
   schedule:
-    # Saturdays and Tuesdays, ~6:23am Pacific (new episodes come out Fridays)
-    - cron: "23 13 * * 2,6"
+    # Every morning, ~6:23am Pacific (new episodes come out Fridays; Spotify matching resumes daily)
+    - cron: "23 13 * * *"
   workflow_dispatch:
     inputs:
       full:
