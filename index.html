@@ -703,12 +703,19 @@ function openSheet(html) {
 function closeSheet() { $("#sheet").classList.add("hide"); $("#sheetBg").classList.add("hide"); }
 $("#sheetBg").addEventListener("click", closeSheet);
 
+function spotifyLine() {
+  const st = DATA.spotifyStats || {};
+  if (!DATA.spotify || !st.songs) return `<div class="note">Songs link to Spotify search.</div>`;
+  const left = st.pending ? ` · ${st.pending.toLocaleString()} still being looked up (continues with each update)` : "";
+  return `<div class="note">${st.pending ? "" : "✓ "}${st.matched.toLocaleString()} of ${st.songs.toLocaleString()} songs have exact Spotify links${left}. The rest link to Spotify search.</div>`;
+}
 function openSettings() {
   const f = freshness(), played = Object.keys(S.played).length;
   openSheet(`<h2>Settings</h2>
     <div class="row"><div class="lbl">Episode list</div>
       <div class="val ${f.warn ? "warn" : ""}">${f.warn ? "" : "✓ "}${esc(f.text)}</div>
-      ${DATA.updated ? `<div class="note">${EPS.length} episodes, ${DATA.withAudio ?? EPS.filter((e) => e.mp3).length} playable here · ${COLLS.length} curated lists · ${DATA.spotify ? "exact Spotify song links" : "Spotify search links for songs"}. Checks for new episodes every Tuesday and Saturday.</div>` : ""}
+      ${DATA.updated ? `<div class="note">${EPS.length} episodes, ${DATA.withAudio ?? EPS.filter((e) => e.mp3).length} playable here · ${COLLS.length} curated lists. Checks for new episodes every Tuesday and Saturday.</div>` : ""}
+      ${spotifyLine()}
       ${(DATA.warnings || []).slice(1).map((w) => `<div class="note" style="color:var(--warn)">${esc(w)}</div>`).join("")}
     </div>
     <div class="row"><div class="lbl">Your history (saved on this phone only)</div>

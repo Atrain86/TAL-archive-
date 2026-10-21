@@ -36,6 +36,7 @@ UA = "Mozilla/5.0 (compatible; personal-episode-index; +https://github.com/Atrai
 PAUSE = 0.4  # be polite between requests
 DATA_VERSION = 2
 SPOTIFY_OK = False
+SPOTIFY_STATS = {}
 
 COLLECTIONS = [
     ("new-to-this-american-life", "New to This American Life"),
@@ -377,7 +378,7 @@ def artist_parts(a):
 
 class Spotify:
     def __init__(self, cid, secret):
-        self.cid, self.secret, self.token, self.exp, self.why = cid, secret, None, 0, ""
+        self.cid, self.secret, self.token, self.exp, self.why, self.blocked = cid, secret, None, 0, "", 0
 
     def auth(self):
         if self.token and time.time() < self.exp - 60:
@@ -407,7 +408,7 @@ class Spotify:
 
     def search(self, q):
         for attempt in range(4):
-            if not self.auth():
+            if self.blocked or not self.auth():
                 return None
             url = "https://api.spotify.com/v1/search?" + urllib.parse.urlencode(
                 {"q": q, "type": "track", "limit": 8, "market": "CA"})
@@ -417,9 +418,13 @@ class Spotify:
                     return json.load(r).get("tracks", {}).get("items", [])
             except urllib.error.HTTPError as e:
                 if e.code == 429:
-                    wait = int(e.headers.get("Retry-After", "5"))
+                    wait = int(e.headers.get("Retry-After", "5") or 5)
+                    if wait > 30:  # long pause requested: stop for this run, resume next time
+                        log(f"  Spotify asked to pause for {wait}s; stopping lookups for this run")
+                        self.blocked = wait
+                        return None
                     log(f"  Spotify asked to slow down; waiting {wait}s")
-                    time.sleep(min(wait, 120))
+                    time.sleep(wait + 1)
                     continue
                 if e.code == 401:
                     self.token = None
@@ -443,7 +448,7 @@ class Spotify:
             queries.append(f'track:"{title}"')
         for q in queries:
             items = self.search(q)
-            time.sleep(0.12)
+            time.sleep(0.35)
             if items is None:
                 return None  # couldn't ask; try again next run
             for it in items:
@@ -477,7 +482,9 @@ def add_spotify(details):
     cache = read_json(SPOTIFY_CACHE, {})
     today = datetime.now(timezone.utc).date()
     retry_before = (today - timedelta(days=90)).isoformat()
+    deadline = time.time() + 20 * 60  # keep each update short; the rest continue next run
     looked = found = 0
+    paused = False
     for n in sorted(details):
         d = details[n]
         changed = False
@@ -485,24 +492,33 @@ def add_spotify(details):
             for s in a.get("songs", []):
                 key = f"{norm(s['t'])}|{norm(s['a'])}"
                 hit = cache.get(key)
-                if hit is None or (not hit["id"] and hit["on"] < retry_before):
-                    if looked >= 5000:
-                        continue
-                    tid = sp.match(s["t"], s["a"])
-                    looked += 1
-                    if tid is None:
-                        continue
-                    hit = cache[key] = {"id": tid, "on": today.isoformat()}
-                    found += 1 if tid else 0
-                if hit["id"] and s.get("sp") != hit["id"]:
+                need = hit is None or (not hit["id"] and hit["on"] < retry_before)
+                if need and not paused:
+                    if sp.blocked or time.time() > deadline:
+                        paused = True
+                    else:
+                        tid = sp.match(s["t"], s["a"])
+                        if tid is not None:
+                            looked += 1
+                            hit = cache[key] = {"id": tid, "on": today.isoformat()}
+                            found += 1 if tid else 0
+                            if looked % 100 == 0:
+                                write_json(SPOTIFY_CACHE, cache)
+                                log(f"  Spotify: {looked} songs looked up so far ({found} matched)")
+                if hit and hit["id"] and s.get("sp") != hit["id"]:
                     s["sp"] = hit["id"]
                     changed = True
         if changed:
             d["_dirty"] = True
     write_json(SPOTIFY_CACHE, cache)
-    total = len(cache)
-    matched = sum(1 for v in cache.values() if v["id"])
-    log(f"Spotify: looked up {looked} songs this run ({found} matched); {matched} of {total} known songs have exact links.")
+    keys = {f"{norm(s['t'])}|{norm(s['a'])}" for d in details.values() for a in d.get("acts", []) for s in a.get("songs", [])}
+    SPOTIFY_STATS.update(
+        songs=len(keys),
+        matched=sum(1 for k in keys if cache.get(k, {}).get("id")),
+        pending=sum(1 for k in keys if k not in cache),
+    )
+    log(f"Spotify: looked up {looked} songs this run ({found} matched); "
+        f"{SPOTIFY_STATS['matched']} of {SPOTIFY_STATS['songs']} songs have exact links, {SPOTIFY_STATS['pending']} still to look up.")
     return None
 
 
@@ -601,6 +617,7 @@ def main():
         "count": len(episodes),
         "withAudio": with_audio,
         "spotify": SPOTIFY_OK,
+        "spotifyStats": SPOTIFY_STATS,
         "warnings": warnings,
         "gone": sorted(gone),
         "episodes": episodes,
