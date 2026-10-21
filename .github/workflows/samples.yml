@@ -1,0 +1,19 @@
+name: Grab page samples (temporary)
+on:
+  push:
+    branches: [debug-samples2]
+permissions:
+  contents: write
+jobs:
+  grab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p samples
+          UA="Mozilla/5.0 (compatible; personal-episode-index; +https://github.com/Atrain86/tal-archive)"
+          get() { curl -sL -A "$UA" "https://www.thisamericanlife.org/$1" -o "samples/$2.html"; sleep 1; }
+          get recommended/staff-picks sp-index
+          for s in susan-burton elna-baker sean-cole david-kestenbaum; do get recommended/staff-picks-$s sp-$s; done
+          git config user.name bot; git config user.email bot@users.noreply.github.com
+          git add samples && git commit -m "samples" && git push
