@@ -1,0 +1,28 @@
+name: Grab page samples (temporary)
+on:
+  push:
+    branches: [debug-samples]
+permissions:
+  contents: write
+jobs:
+  grab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p samples
+          UA="Mozilla/5.0 (compatible; personal-episode-index; +https://github.com/Atrain86/tal-archive)"
+          get() { curl -sL -A "$UA" "https://www.thisamericanlife.org/$1" -o "samples/$2.html"; sleep 1; }
+          get 1/new-beginnings ep1
+          get 50/shoulda-been-dead ep50
+          get 300 ep300
+          get radio-archives/episode/454 ep454
+          get radio-archives/episode/563 ep563
+          get 899/reaching-out ep899
+          get radio-archives/episode/650 ep650
+          for s in new-to-this-american-life stories-kids-seem-to-like road-trip hour-long-stories staff-recommendations funny-stories award-winners; do get recommended/$s rec-$s; done
+          get recommended rec-index
+          get "recommended/staff-recommendations?page=1" rec-staff-p1
+          ls -la samples
+          git config user.name bot; git config user.email bot@users.noreply.github.com
+          git add samples && git commit -m "samples" && git push
