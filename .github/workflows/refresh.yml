@@ -4,8 +4,11 @@ on:
   push:
     branches: [main]
   schedule:
-    # Every morning, ~6:23am Pacific (new episodes come out Fridays; Spotify matching resumes daily)
+    # Twice a day, ~6:23am and ~2:23pm Pacific. GitHub sometimes skips a scheduled
+    # run when it's busy, so the second run is a backup; it also gives Spotify
+    # matching a second chance each day.
     - cron: "23 13 * * *"
+    - cron: "23 21 * * *"
   workflow_dispatch:
     inputs:
       full:
