@@ -646,7 +646,14 @@ def add_spotify(details):
         songs=len(keys),
         matched=sum(1 for k in keys if cache.get(k, {}).get("id")),
         pending=sum(1 for k in keys if k not in cache),
+        lookedThisRun=looked,
     )
+    if sp.blocked:
+        SPOTIFY_STATS["pausedSeconds"] = int(sp.blocked)
+        hrs = sp.blocked / 3600
+        wait = f"about {round(hrs)} hours" if hrs >= 1.5 else f"about {max(1, round(sp.blocked / 60))} minutes"
+        return (f"Spotify asked the app to pause song lookups for {wait}; "
+                f"{SPOTIFY_STATS['pending']} songs will be matched on the next updates after that.")
     log(f"Spotify: looked up {looked} songs this run ({found} matched); "
         f"{SPOTIFY_STATS['matched']} of {SPOTIFY_STATS['songs']} songs have exact links, {SPOTIFY_STATS['pending']} still to look up.")
     return None
