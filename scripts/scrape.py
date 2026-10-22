@@ -578,7 +578,7 @@ class Spotify:
             queries.append(f'track:"{title}"')
         for q in queries:
             items = self.search(q)
-            time.sleep(0.35)
+            time.sleep(0.6)  # gentle pace; Spotify pauses apps that ask too fast
             if items is None:
                 return None  # couldn't ask; try again next run
             for it in items:
