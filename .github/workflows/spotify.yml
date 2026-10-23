@@ -1,0 +1,71 @@
+name: Match songs on Spotify (hourly, gentle)
+
+on:
+  schedule:
+    # Every hour at :41. Each run looks up at most 100 songs, slowly, and
+    # skips Spotify entirely while Spotify has asked for a pause.
+    - cron: "41 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: refresh-and-publish
+  cancel-in-progress: false
+
+jobs:
+  match:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      changed: ${{ steps.save.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Look up a batch of songs
+        env:
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+        run: python scripts/scrape.py --spotify-only
+
+      - name: Save if anything changed
+        id: save
+        run: |
+          git config user.name "tal-archive-bot"
+          git config user.email "tal-archive-bot@users.noreply.github.com"
+          git add episodes.json details spotify-cache.json spotify-state.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes"
+          else
+            git commit -m "Match songs on Spotify"
+            git pull --rebase origin main
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.save.outputs.changed == 'true'
+        uses: actions/configure-pages@v5
+
+      - if: steps.save.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  publish:
+    needs: match
+    if: needs.match.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

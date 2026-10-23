@@ -32,6 +32,7 @@ OUT = os.path.join(ROOT, "episodes.json")
 DETAILS = os.path.join(ROOT, "details")
 COLLECTIONS_OUT = os.path.join(ROOT, "collections.json")
 SPOTIFY_CACHE = os.path.join(ROOT, "spotify-cache.json")
+SPOTIFY_STATE = os.path.join(ROOT, "spotify-state.json")
 UA = "Mozilla/5.0 (compatible; personal-episode-index; +https://github.com/Atrain86/tal-archive)"
 PAUSE = 0.4  # be polite between requests
 DATA_VERSION = 2
@@ -578,7 +579,7 @@ class Spotify:
             queries.append(f'track:"{title}"')
         for q in queries:
             items = self.search(q)
-            time.sleep(0.6)  # gentle pace; Spotify pauses apps that ask too fast
+            time.sleep(1.5)  # slow and steady; Spotify pauses apps that ask too fast
             if items is None:
                 return None  # couldn't ask; try again next run
             for it in items:
@@ -591,7 +592,7 @@ class Spotify:
         return ""
 
 
-def add_spotify(details):
+def add_spotify(details, max_lookups=100):
     global SPOTIFY_OK
     cid = re.sub(r"\s+", "", os.environ.get("SPOTIFY_CLIENT_ID") or "")
     secret = re.sub(r"\s+", "", os.environ.get("SPOTIFY_CLIENT_SECRET") or "")
@@ -610,11 +611,16 @@ def add_spotify(details):
         return f"Spotify didn't accept the keys: {why}{shape}. Songs use search links until they're re-checked."
     SPOTIFY_OK = True
     cache = read_json(SPOTIFY_CACHE, {})
-    today = datetime.now(timezone.utc).date()
+    state = read_json(SPOTIFY_STATE, {})
+    now = datetime.now(timezone.utc)
+    today = now.date()
     retry_before = (today - timedelta(days=90)).isoformat()
-    deadline = time.time() + 20 * 60  # keep each update short; the rest continue next run
+    paused_until = state.get("pausedUntil")
+    resting = bool(paused_until and paused_until > now.strftime("%Y-%m-%dT%H:%M:%SZ"))
+    if resting:
+        log(f"Spotify asked for a pause until {paused_until}; no lookups this run.")
     looked = found = 0
-    paused = False
+    stop = resting
     for n in sorted(details):
         d = details[n]
         changed = False
@@ -623,40 +629,75 @@ def add_spotify(details):
                 key = f"{norm(s['t'])}|{norm(s['a'])}"
                 hit = cache.get(key)
                 need = hit is None or (not hit["id"] and hit["on"] < retry_before)
-                if need and not paused:
-                    if sp.blocked or time.time() > deadline:
-                        paused = True
+                if need and not stop:
+                    if sp.blocked or looked >= max_lookups:
+                        stop = True
                     else:
                         tid = sp.match(s["t"], s["a"])
                         if tid is not None:
                             looked += 1
                             hit = cache[key] = {"id": tid, "on": today.isoformat()}
                             found += 1 if tid else 0
-                            if looked % 100 == 0:
-                                write_json(SPOTIFY_CACHE, cache)
-                                log(f"  Spotify: {looked} songs looked up so far ({found} matched)")
                 if hit and hit["id"] and s.get("sp") != hit["id"]:
                     s["sp"] = hit["id"]
                     changed = True
         if changed:
             d["_dirty"] = True
     write_json(SPOTIFY_CACHE, cache)
+
+    if sp.blocked:
+        state["pausedUntil"] = (now + timedelta(seconds=int(sp.blocked) + 60)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    elif not resting:
+        state.pop("pausedUntil", None)
+    if found or "lastProgress" not in state:
+        state["lastProgress"] = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+    write_json(SPOTIFY_STATE, state)
+
     keys = {f"{norm(s['t'])}|{norm(s['a'])}" for d in details.values() for a in d.get("acts", []) for s in a.get("songs", [])}
+    SPOTIFY_STATS.clear()
     SPOTIFY_STATS.update(
         songs=len(keys),
         matched=sum(1 for k in keys if cache.get(k, {}).get("id")),
+        notFound=sum(1 for k in keys if k in cache and not cache[k]["id"]),
         pending=sum(1 for k in keys if k not in cache),
-        lookedThisRun=looked,
     )
-    if sp.blocked:
-        SPOTIFY_STATS["pausedSeconds"] = int(sp.blocked)
-        hrs = sp.blocked / 3600
-        wait = f"about {round(hrs)} hours" if hrs >= 1.5 else f"about {max(1, round(sp.blocked / 60))} minutes"
-        return (f"Spotify asked the app to pause song lookups for {wait}; "
-                f"{SPOTIFY_STATS['pending']} songs will be matched on the next updates after that.")
+    if state.get("pausedUntil"):
+        SPOTIFY_STATS["pausedUntil"] = state["pausedUntil"]
     log(f"Spotify: looked up {looked} songs this run ({found} matched); "
-        f"{SPOTIFY_STATS['matched']} of {SPOTIFY_STATS['songs']} songs have exact links, {SPOTIFY_STATS['pending']} still to look up.")
+        f"{SPOTIFY_STATS['matched']} of {SPOTIFY_STATS['songs']} songs have exact links, "
+        f"{SPOTIFY_STATS['pending']} still to look up" + (f", paused until {state['pausedUntil']}" if state.get("pausedUntil") else "") + ".")
+    # A pause is expected and fixes itself. Only speak up if matching stalls for days.
+    stalled_since = state.get("lastProgress", "")
+    if SPOTIFY_STATS["pending"] and stalled_since < (now - timedelta(days=3)).strftime("%Y-%m-%dT%H:%M:%SZ"):
+        return (f"Spotify song matching hasn't moved in over 3 days "
+                f"({SPOTIFY_STATS['pending']} songs waiting) — needs a look.")
     return None
+
+
+def spotify_only():
+    """Hourly job: a small, gentle batch of Spotify lookups. Doesn't touch
+    the website. Writes files only when something actually changed."""
+    data = read_json(OUT, {})
+    if not data.get("episodes"):
+        log("No episode list yet; nothing to do.")
+        return
+    details = {}
+    for f in os.listdir(DETAILS):
+        if f.endswith(".json"):
+            details[int(f[:-5])] = read_json(os.path.join(DETAILS, f), {"acts": []})
+    warning = add_spotify(details, max_lookups=100)
+    for n, d in details.items():
+        if d.pop("_dirty", False):
+            write_json(os.path.join(DETAILS, f"{n}.json"), d)
+    warnings = [w for w in data.get("warnings", []) if not w.startswith("Spotify")]
+    if warning:
+        warnings.append(warning)
+    if data.get("spotifyStats") != SPOTIFY_STATS or data.get("warnings") != warnings or data.get("spotify") != SPOTIFY_OK:
+        data.update(spotify=SPOTIFY_OK, spotifyStats=SPOTIFY_STATS, warnings=warnings)
+        write_json(OUT, data)
+        log("Saved updated song links.")
+    else:
+        log("No change.")
 
 
 # ---------- main ----------
@@ -779,4 +820,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    spotify_only() if "--spotify-only" in sys.argv else main()

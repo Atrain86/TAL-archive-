@@ -46,11 +46,12 @@ jobs:
         run: |
           git config user.name "tal-archive-bot"
           git config user.email "tal-archive-bot@users.noreply.github.com"
-          git add episodes.json details collections.json spotify-cache.json 2>/dev/null || git add episodes.json details collections.json
+          git add episodes.json details collections.json spotify-cache.json spotify-state.json 2>/dev/null || git add episodes.json details collections.json
           if git diff --cached --quiet; then
             echo "No changes"
           else
             git commit -m "Update episode list"
+            git pull --rebase origin main
             git push
           fi
 
